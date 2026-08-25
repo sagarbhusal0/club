@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ICT Mavi Imiliya Club — Portal
 
-## Getting Started
+Production-ready recruitment & hackathon portal. Next.js 16, TypeScript, Tailwind, Neon PostgreSQL, Drizzle ORM.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.example .env   # fill DATABASE_URL, AUTH_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD
+npx drizzle-kit push   # create tables
+npx tsx src/db/seed.ts # seed positions + admin user
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Seed creates 12 board positions and admin user from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Env
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Var | Description |
+|-----|-------------|
+| `DATABASE_URL` | Neon Postgres connection string |
+| `AUTH_SECRET` | Random 32+ char secret (`openssl rand -base64 32`) |
+| `ADMIN_EMAIL` | Admin login email |
+| `ADMIN_PASSWORD` | Admin password (hashed on seed) |
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Script | Action |
+|--------|--------|
+| `npm run dev` | Dev server |
+| `npm run build` | Production build |
+| `npx drizzle-kit push` | Push schema to DB |
+| `npx drizzle-kit studio` | Drizzle Studio |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Admin
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Login at `/login` with seeded credentials. Manage applications, teams, and settings at `/admin`.
 
-## Deploy on Vercel
+## Deploy (Vercel)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Set env vars in Vercel, push schema via `drizzle-kit push`, seed once, deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Structure
+
+```
+src/
+  app/          # pages (/, about, board-recruitment, hackathon, admin, login, api)
+  components/   # ui, Navbar, Footer
+  db/           # schema, index, seed
+  lib/          # auth, validation, constants, utils, email, ratelimit
+  actions/      # board, hackathon, admin server actions
+  proxy.ts      # admin auth
+```
