@@ -2,18 +2,24 @@ import { db } from "@/db";
 import { boardPositions, settings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import ApplyForm from "./ApplyForm";
-import { BOARD_POSITIONS_FALLBACK } from "@/lib/constants";
+import { BOARD_POSITIONS_FALLBACK, BOARD_OPEN_POSITION_NAMES } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+const OPEN_SET = new Set<string>(BOARD_OPEN_POSITION_NAMES as unknown as string[]);
 
 export default async function ApplyPage() {
   let positions: { id:string; name:string }[] = [];
   let deadline = "Mon, 31 Aug 2026 — 11:59 PM";
   try {
     positions = await db.select({ id: boardPositions.id, name: boardPositions.name }).from(boardPositions).where(eq(boardPositions.isActive,true));
+    positions = positions.filter((p) => OPEN_SET.has(p.name));
     const rows = await db.select().from(settings);
     const m = Object.fromEntries(rows.map(r=>[r.key,r.value]));
     if (m.board_closes) deadline = `${m.board_closes} — 11:59 PM`;
   } catch {}
   if (positions.length===0) positions = BOARD_POSITIONS_FALLBACK.map(p=>({id:p.id,name:p.name}));
+  else positions = positions.filter((p) => OPEN_SET.has(p.name));
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight">Board Application</h1>
