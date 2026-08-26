@@ -7,19 +7,32 @@ import { BOARD_POSITIONS_FALLBACK, BOARD_OPEN_POSITION_NAMES } from "@/lib/const
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-const OPEN_SET = new Set<string>(BOARD_OPEN_POSITION_NAMES as unknown as string[]);
 
 export default async function BoardRecruitmentPage() {
   let positions: { id:string; name:string; description:string|null; isActive:boolean }[] = [];
   let s: Record<string,string> = {};
   try {
     positions = await db.select().from(boardPositions).where(eq(boardPositions.isActive,true));
-    positions = positions.filter((p) => OPEN_SET.has(p.name));
     const rows = await db.select().from(settings);
     s = Object.fromEntries(rows.map(r=>[r.key,r.value]));
   } catch {}
-  if (positions.length===0) positions = BOARD_POSITIONS_FALLBACK as typeof positions;
-  else positions = positions.filter((p) => OPEN_SET.has(p.name));
+  {
+    const byName = new Map(positions.map((p) => [p.name, p]));
+    if (positions.length === 0) {
+      positions = BOARD_POSITIONS_FALLBACK as typeof positions;
+    } else {
+      const merged: typeof positions = [];
+      for (const name of BOARD_OPEN_POSITION_NAMES) {
+        const hit = byName.get(name as string);
+        if (hit) merged.push(hit as typeof positions[number]);
+        else {
+          const fb = BOARD_POSITIONS_FALLBACK.find((f) => f.name === name);
+          if (fb) merged.push(fb as unknown as typeof positions[number]);
+        }
+      }
+      positions = merged.length ? merged : (BOARD_POSITIONS_FALLBACK as typeof positions);
+    }
+  }
   const status = registrationStatus(s.board_opens||"2026-01-01", s.board_closes||"2026-12-31");
 
   return (

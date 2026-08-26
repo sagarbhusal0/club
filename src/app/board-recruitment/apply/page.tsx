@@ -6,20 +6,33 @@ import { BOARD_POSITIONS_FALLBACK, BOARD_OPEN_POSITION_NAMES } from "@/lib/const
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-const OPEN_SET = new Set<string>(BOARD_OPEN_POSITION_NAMES as unknown as string[]);
 
 export default async function ApplyPage() {
   let positions: { id:string; name:string }[] = [];
   let deadline = "Mon, 31 Aug 2026 — 11:59 PM";
   try {
     positions = await db.select({ id: boardPositions.id, name: boardPositions.name }).from(boardPositions).where(eq(boardPositions.isActive,true));
-    positions = positions.filter((p) => OPEN_SET.has(p.name));
     const rows = await db.select().from(settings);
     const m = Object.fromEntries(rows.map(r=>[r.key,r.value]));
     if (m.board_closes) deadline = `${m.board_closes} — 11:59 PM`;
   } catch {}
-  if (positions.length===0) positions = BOARD_POSITIONS_FALLBACK.map(p=>({id:p.id,name:p.name}));
-  else positions = positions.filter((p) => OPEN_SET.has(p.name));
+  {
+    const byName = new Map(positions.map((p) => [p.name, p]));
+    if (positions.length === 0) {
+      positions = BOARD_POSITIONS_FALLBACK.map((p) => ({ id: p.id, name: p.name }));
+    } else {
+      const merged: typeof positions = [];
+      for (const name of BOARD_OPEN_POSITION_NAMES) {
+        const hit = byName.get(name as string);
+        if (hit) merged.push(hit as typeof positions[number]);
+        else {
+          const fb = BOARD_POSITIONS_FALLBACK.find((f) => f.name === name);
+          if (fb) merged.push({ id: fb.id, name: fb.name });
+        }
+      }
+      positions = merged.length ? merged : BOARD_POSITIONS_FALLBACK.map((p) => ({ id: p.id, name: p.name }));
+    }
+  }
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight">Board Application</h1>
