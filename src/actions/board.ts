@@ -46,7 +46,7 @@ export async function submitBoardApplication(data: unknown, ip: string) {
         phone: d.phone,
         grade: d.grade,
         section: d.section,
-        studentId: d.studentId||null,
+        studentId: (d.studentId && d.studentId.trim()) ? d.studentId.trim() : "",
         dateOfBirth: d.dateOfBirth||null,
         profilePhoto: d.profilePhoto||null,
         firstChoicePositionId: d.firstChoicePositionId||null,
@@ -92,8 +92,12 @@ export async function submitBoardApplication(data: unknown, ip: string) {
     return { success:true, applicationNumber: result.applicationNumber };
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[board] submit failed:", msg, e);
-    if (msg.includes("duplicate")||msg.includes("unique")) return { error:"Duplicate submission detected." };
-    return { error: msg ? `Submission failed: ${msg}` : "Something went wrong. Please try again." };
+    const cause = (e as { cause?: unknown })?.cause;
+    const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : "";
+    const detail = (msg.includes("Failed query") && causeMsg) ? causeMsg : msg;
+    console.error("[board] submit failed:", detail, e);
+    if (detail.includes("duplicate")||detail.includes("unique")) return { error:"Duplicate submission detected." };
+    if (detail.includes("null value")||detail.includes("not-null")) return { error:"Submission failed: a required field was empty. Please refresh and try again." };
+    return { error: detail ? `Submission failed: ${detail}` : "Something went wrong. Please try again." };
   }
 }
