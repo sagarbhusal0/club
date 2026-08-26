@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { registrationStatus } from "@/lib/utils";
+import { hackathonStatus } from "@/lib/utils";
 
 export default async function HackathonPage() {
   let s: Record<string,string> = {};
   try { const rows = await db.select().from(settings); s=Object.fromEntries(rows.map(r=>[r.key,r.value])); } catch {}
-  const status = registrationStatus(s.hackathon_opens||"2026-01-01", s.hackathon_closes||"2026-12-31");
+  const status = hackathonStatus(s.hackathon_opens||"2026-01-01", s.hackathon_closes||"2026-12-31");
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Hackathon 2026</h1>

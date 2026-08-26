@@ -61,26 +61,24 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
             <div><Label>Phone *</Label><Input {...register("phone")} />{errors.phone && <p className="text-xs text-red-600">{String(errors.phone.message)}</p>}</div>
             <div><Label>Grade/Class *</Label><Input {...register("grade")} />{errors.grade && <p className="text-xs text-red-600">{String(errors.grade.message)}</p>}</div>
             <div><Label>Section *</Label><Input {...register("section")} />{errors.section && <p className="text-xs text-red-600">{String(errors.section.message)}</p>}</div>
-            <div><Label>Student ID *</Label><Input {...register("studentId")} />{errors.studentId && <p className="text-xs text-red-600">{String(errors.studentId.message)}</p>}</div>
-            <div><Label>Date of birth</Label><Input type="date" {...register("dateOfBirth")} /></div>
-            <div><Label>Profile photo URL</Label><Input {...register("profilePhoto")} placeholder="https://..." /></div>
+            <div><Label>Student ID (optional)</Label><Input {...register("studentId")} placeholder="Optional" />{errors.studentId && <p className="text-xs text-red-600">{String(errors.studentId.message)}</p>}</div>
+            <div><Label>Date of birth (optional)</Label><Input type="date" {...register("dateOfBirth")} /></div>
+            <div><Label>Profile photo URL (optional)</Label><Input {...register("profilePhoto")} placeholder="https://..." /></div>
           </div>
-          <Button type="button" onClick={()=>next(["fullName","email","phone","grade","section","studentId"])}>Next →</Button>
+          <Button type="button" onClick={()=>next(["fullName","email","phone","grade","section"])}>Next →</Button>
         </Card>
       )}
 
       {step===2 && (
         <Card className="space-y-4" style={{ animation:"fadeUp 220ms var(--ease-out) both" }}>
           <h3 className="font-bold">Position & Interests</h3>
-          <div><Label>First-choice position *</Label>
-            <Select {...register("firstChoicePositionId")}><option value="">Select</option>{positions.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</Select>
+          <div><Label>Position *</Label>
+            <Select {...register("firstChoicePositionId")}><option value="">Select a position — {positions.length} available</option>{positions.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</Select>
             {errors.firstChoicePositionId && <p className="text-xs text-red-600">{String(errors.firstChoicePositionId.message)}</p>}
+            {positions.length===0 && <p className="text-xs text-amber-600">No positions found — try refreshing.</p>}
           </div>
-          <div><Label>Second-choice position</Label>
-            <Select {...register("secondChoicePositionId")}><option value="">None</option>{positions.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</Select>
-          </div>
-          <div><Label>Technical interests</Label><Input {...register("technicalInterests")} placeholder="AI, Web Dev, ..." /></div>
-          <div><Label>Areas of expertise</Label><Input {...register("expertise")} /></div>
+          <div><Label>Technical interests (optional)</Label><Input {...register("technicalInterests")} placeholder="AI, Web Dev, ..." /></div>
+          <div><Label>Areas of expertise (optional)</Label><Input {...register("expertise")} /></div>
           <div className="flex gap-2"><Button type="button" onClick={()=>setStep(1)} className="bg-zinc-200 text-zinc-800 hover:bg-zinc-300">Back</Button><Button type="button" onClick={()=>next(["firstChoicePositionId"])}>Next →</Button></div>
         </Card>
       )}
@@ -88,15 +86,15 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
       {step===3 && (
         <Card className="space-y-4" style={{ animation:"fadeUp 220ms var(--ease-out) both" }}>
           <h3 className="font-bold">Experience</h3>
-          <div><Label>Previous club experience</Label><Textarea rows={2} {...register("experience")} /></div>
-          <div><Label>Leadership experience</Label><Textarea rows={2} {...register("leadershipExperience")} /></div>
-          <div><Label>Technical projects</Label><Textarea rows={2} {...register("projects")} /></div>
-          <div><Label>Competitions</Label><Textarea rows={2} {...register("competitions")} /></div>
+          <div><Label>Previous club experience (optional)</Label><Textarea rows={2} {...register("experience")} /></div>
+          <div><Label>Leadership experience (optional)</Label><Textarea rows={2} {...register("leadershipExperience")} /></div>
+          <div><Label>Technical projects (optional)</Label><Textarea rows={2} {...register("projects")} /></div>
+          <div><Label>Competitions (optional)</Label><Textarea rows={2} {...register("competitions")} /></div>
           <div className="grid gap-4 md:grid-cols-2">
-            <div><Label>GitHub URL</Label><Input {...register("githubUrl")} placeholder="https://github.com/..." />{errors.githubUrl && <p className="text-xs text-red-600">{String(errors.githubUrl.message)}</p>}</div>
-            <div><Label>Portfolio URL</Label><Input {...register("portfolioUrl")} placeholder="https://..." />{errors.portfolioUrl && <p className="text-xs text-red-600">{String(errors.portfolioUrl.message)}</p>}</div>
+            <div><Label>GitHub URL (optional)</Label><Input {...register("githubUrl")} placeholder="https://github.com/..." />{errors.githubUrl && <p className="text-xs text-red-600">{String(errors.githubUrl.message)}</p>}</div>
+            <div><Label>Portfolio URL (optional)</Label><Input {...register("portfolioUrl")} placeholder="https://..." />{errors.portfolioUrl && <p className="text-xs text-red-600">{String(errors.portfolioUrl.message)}</p>}</div>
           </div>
-          <div><Label>Other links</Label><Input {...register("otherLinks")} /></div>
+          <div><Label>Other links (optional)</Label><Input {...register("otherLinks")} /></div>
           <div className="flex gap-2"><Button type="button" onClick={()=>setStep(2)} className="bg-zinc-200 text-zinc-800 hover:bg-zinc-300">Back</Button><Button type="button" onClick={()=>setStep(4)}>Next →</Button></div>
         </Card>
       )}
@@ -121,7 +119,7 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
           <h3 className="font-bold">Confirmation</h3>
           <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/60 dark:text-zinc-300">
             <p><b>Name:</b> {getValues("fullName")} · <b>Email:</b> {getValues("email")}</p>
-            <p><b>Grade:</b> {getValues("grade")} {getValues("section")} · <b>ID:</b> {getValues("studentId")}</p>
+            <p><b>Grade:</b> {getValues("grade")} {getValues("section")}{getValues("studentId") ? <> · <b>ID:</b> {getValues("studentId")}</> : null}</p>
           </div>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" {...register("confirm")} className="mt-1" />

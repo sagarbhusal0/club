@@ -23,25 +23,27 @@ async function seed() {
     { name: "Event Coordinator", description: "Organize events", sortOrder: "10" },
     { name: "Media & Design Lead", description: "Handle media & design", sortOrder: "11" },
     { name: "Treasurer", description: "Manage finances", sortOrder: "12" },
+    { name: "Member", description: "General member — contribute across club activities", sortOrder: "13" },
   ];
 
   for (const p of positions) {
     await sql`INSERT INTO board_positions (name, description, sort_order) VALUES (${p.name}, ${p.description}, ${p.sortOrder}) ON CONFLICT (name) DO NOTHING`;
   }
+  await sql`UPDATE board_positions SET is_active = (name IN ('Treasurer','Member'))`;
 
   const defaults: [string, string][] = [
     ["club_name", "ICT Mavi Imiliya Club"],
     ["club_description", "Learn. Build. Lead."],
-    ["contact_email", "ict@mavi.edu.np"],
-    ["board_opens", "2026-04-01"],
-    ["board_closes", "2026-05-15"],
+    ["contact_email", "sagar@sagarb.com"],
+    ["board_opens", "2026-08-26"],
+    ["board_closes", "2026-08-31"],
     ["hackathon_opens", "2026-04-15"],
     ["hackathon_closes", "2026-05-30"],
     ["hackathon_date", "2026-06-15"],
     ["hackathon_categories", "AI/ML,Cybersecurity,Web Development,Software Development,Cloud/DevOps,Open Source,General"],
   ];
   for (const [k, v] of defaults) {
-    await sql`INSERT INTO settings (key, value) VALUES (${k}, ${v}) ON CONFLICT (key) DO NOTHING`;
+    await sql`INSERT INTO settings (key, value) VALUES (${k}, ${v}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value WHERE settings.key IN ('contact_email','board_opens','board_closes')`;
   }
 
   const adminEmail = process.env.ADMIN_EMAIL;

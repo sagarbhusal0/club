@@ -13,9 +13,8 @@ export default async function ApplicationDetail({ params }: { params: Promise<{ 
   const posMap = new Map(pos.map(p=>[p.id,p.name]));
   const fields: [string,string][] = [
     ["Full Name", app.fullName], ["Email", app.email], ["Phone", app.phone],
-    ["Grade", app.grade], ["Section", app.section], ["Student ID", app.studentId],
-    ["First Choice", posMap.get(app.firstChoicePositionId||"")||"—"],
-    ["Second Choice", posMap.get(app.secondChoicePositionId||"")||"—"],
+    ["Grade", app.grade], ["Section", app.section], ["Student ID", app.studentId||"—"],
+    ["Position", posMap.get(app.firstChoicePositionId||"")||"—"],
     ["Technical Interests", app.technicalInterests||"—"],
     ["Expertise", app.expertise||"—"],
     ["Experience", app.experience||"—"],

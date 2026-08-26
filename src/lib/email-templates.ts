@@ -5,7 +5,7 @@ function wrap(title: string, body: string) {
 <h2 style="margin:0 0 12px">${title}</h2>
 ${body}
 <hr style="margin:24px 0;border:none;border-top:1px solid #e4e4e7"/>
-<p style="font-size:12px;color:#71717a">This is an automated message from ICT Mavi Imiliya Club. Reply to ict@sorvx.com if you have questions.<br/>
+<p style="font-size:12px;color:#71717a">This is an automated message from ICT Mavi Imiliya Club. Reply to sagar@sagarb.com if you have questions.<br/>
 <a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://ictmavi.example.com"}/dashboard" style="color:#4f46e5">View dashboard</a> · <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/dashboard" style="color:#4f46e5">Check status</a></p>
 </div></body></html>`;
 }
@@ -14,12 +14,12 @@ function kvTable(rows: [string,string][]) {
   return `<table style="width:100%;border-collapse:collapse;font-size:14px">${rows.map(([k,v])=>`<tr><td style="padding:6px 8px;color:#71717a;width:35%">${k}</td><td style="padding:6px 8px;font-weight:600">${v||"—"}</td></tr>`).join("")}</table>`;
 }
 
-export function boardSubmittedEmail(a: { applicationNumber:string; fullName:string; email:string; phone:string; grade:string; section:string; studentId:string; firstChoice?:string; secondChoice?:string; motivation:string; timeCommitment:string }) {
+export function boardSubmittedEmail(a: { applicationNumber:string; fullName:string; email:string; phone:string; grade:string; section:string; studentId?:string|null; firstChoice?:string; motivation:string; timeCommitment:string }) {
   const subject = `Board Application Received — ${a.applicationNumber}`;
   const body = `<p>Hi ${a.fullName},</p><p>Your board application has been received and is under review.</p>
 <p><strong>Application ID: ${a.applicationNumber}</strong></p>
 <h3 style="margin:16px 0 8px">Your submission</h3>
-${kvTable([["Name",a.fullName],["Email",a.email],["Phone",a.phone],["Grade",`${a.grade} — ${a.section}`],["Student ID",a.studentId],["First choice",a.firstChoice||"—"],["Second choice",a.secondChoice||"—"],["Time commitment",a.timeCommitment]])}
+${kvTable([["Name",a.fullName],["Email",a.email],["Phone",a.phone],["Grade",`${a.grade} — ${a.section}`],...(a.studentId?([["Student ID",a.studentId]] as [string,string][]):[]),["Position",a.firstChoice||"—"],["Time commitment",a.timeCommitment]])}
 <div style="margin-top:12px;padding:12px;background:#f4f4f5;border-radius:8px"><p style="margin:0 0 4px;font-weight:600">Motivation</p><p style="margin:0;white-space:pre-wrap">${a.motivation}</p></div>
 <p style="margin-top:16px">Check your status anytime at <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/board-recruitment/status" style="color:#4f46e5">Board Status</a> or <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/dashboard" style="color:#4f46e5">My Dashboard</a> using your Application ID and email.</p>`;
   return { subject, html: wrap("Application Received ✅", body) };

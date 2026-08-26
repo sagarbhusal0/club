@@ -23,7 +23,9 @@ export function toCsv(rows: Record<string,unknown>[], headers: string[]) {
 export function registrationStatus(opens: string, closes: string): "OPEN"|"COMING_SOON"|"CLOSED" {
   const now = new Date(); const o = new Date(opens); const c = new Date(closes);
   if (isNaN(o.getTime()) || isNaN(c.getTime())) return "OPEN";
+  c.setHours(23,59,59,999);
   if (now < o) return "COMING_SOON";
   if (now > c) return "CLOSED";
   return "OPEN";
 }
+export function hackathonStatus(_opens: string, _closes: string): "OPEN"|"COMING_SOON"|"CLOSED" { return "CLOSED"; }

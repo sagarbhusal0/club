@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { boardPositions, settings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { registrationStatus } from "@/lib/utils";
+import { BOARD_POSITIONS_FALLBACK } from "@/lib/constants";
 
 export default async function BoardRecruitmentPage() {
   let positions: { id:string; name:string; description:string|null; isActive:boolean }[] = [];
@@ -12,13 +13,15 @@ export default async function BoardRecruitmentPage() {
     const rows = await db.select().from(settings);
     s = Object.fromEntries(rows.map(r=>[r.key,r.value]));
   } catch {}
+  if (positions.length===0) positions = BOARD_POSITIONS_FALLBACK as typeof positions;
   const status = registrationStatus(s.board_opens||"2026-01-01", s.board_closes||"2026-12-31");
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Board Recruitment 2026</h1>
       <p className="mt-2 text-zinc-600 dark:text-zinc-400">Join the ICT Club committee. Applications are <span className="font-semibold dark:text-zinc-100">{status.replace("_"," ")}</span>.</p>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Opens: {s.board_opens||"—"} · Closes: {s.board_closes||"—"}</p>
+      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Opens: {s.board_opens||"—"} · <span className="font-semibold text-amber-600 dark:text-amber-400">Deadline: {s.board_closes||"—"} (Mon, 31 Aug 2026 — 11:59 PM)</span></p>
+      <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">⏰ Board applications close <b>Monday, 31 Aug 2026 at 11:59 PM</b>. Apply now!</div>
 
       <div className="mt-6">
         {status==="OPEN"

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { registrationStatus } from "@/lib/utils";
+import { registrationStatus, hackathonStatus } from "@/lib/utils";
 
 async function getSettings() {
   try {
@@ -15,7 +15,7 @@ const domains = ["AI / Machine Learning","Cybersecurity","Web Development","Soft
 export default async function Home() {
   const s = await getSettings();
   const boardStatus = registrationStatus(s.board_opens||"2026-01-01", s.board_closes||"2026-12-31");
-  const hackStatus = registrationStatus(s.hackathon_opens||"2026-01-01", s.hackathon_closes||"2026-12-31");
+  const hackStatus = hackathonStatus(s.hackathon_opens||"2026-01-01", s.hackathon_closes||"2026-12-31");
 
   return (
     <div>
@@ -28,7 +28,9 @@ export default async function Home() {
           <p className="mx-auto mt-4 max-w-2xl text-sm opacity-80" style={{ animation:"fadeUp 420ms var(--ease-out) 200ms both" }}>Join the most active technology community — build real projects, compete, and lead.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-4" style={{ animation:"fadeUp 420ms var(--ease-out) 280ms both" }}>
             <Link href="/board-recruitment" className="rounded-xl bg-white px-8 py-3 font-semibold text-indigo-700 shadow transition-[transform,background-color] duration-150 ease-out hover:bg-zinc-100 active:scale-[0.97]">Apply for Board →</Link>
-            <Link href="/hackathon" className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 font-semibold backdrop-blur transition-[transform,background-color] duration-150 ease-out hover:bg-white/20 active:scale-[0.97]">Register for Hackathon</Link>
+            {hackStatus==="OPEN"
+              ? <Link href="/hackathon" className="rounded-xl border border-white/30 bg-white/10 px-8 py-3 font-semibold backdrop-blur transition-[transform,background-color] duration-150 ease-out hover:bg-white/20 active:scale-[0.97]">Register for Hackathon</Link>
+              : <span className="rounded-xl border border-white/20 bg-white/5 px-8 py-3 font-semibold opacity-70">Hackathon Closed</span>}
           </div>
           <div className="mt-6 flex justify-center gap-3 text-xs" style={{ animation:"fadeUp 420ms var(--ease-out) 360ms both" }}>
             <span className={`rounded-full px-3 py-1 font-semibold ring-1 ring-white/20 ${boardStatus==="OPEN"?"bg-green-400 text-green-950":boardStatus==="CLOSED"?"bg-red-300 text-red-900":"bg-yellow-300 text-yellow-900"}`}>Board: {boardStatus.replace("_"," ")}</span>
@@ -67,7 +69,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 pb-6">
         <h2 className="text-2xl font-bold tracking-tight">Important Dates</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">BOARD</p><p className="mt-1 text-sm dark:text-zinc-200">Opens: {s.board_opens||"—"}</p><p className="text-sm dark:text-zinc-200">Closes: {s.board_closes||"—"}</p></div>
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">BOARD</p><p className="mt-1 text-sm dark:text-zinc-200">Opens: {s.board_opens||"2026-08-26"}</p><p className="text-sm font-semibold text-amber-600 dark:text-amber-400">Deadline: {s.board_closes||"2026-08-31"} · Mon, 31 Aug 11:59 PM</p></div>
           <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-violet-600 dark:text-violet-400">HACKATHON REG</p><p className="mt-1 text-sm dark:text-zinc-200">Opens: {s.hackathon_opens||"—"}</p><p className="text-sm dark:text-zinc-200">Closes: {s.hackathon_closes||"—"}</p></div>
           <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">HACKATHON DAY</p><p className="mt-1 text-lg font-bold dark:text-zinc-100">{s.hackathon_date||"TBA"}</p></div>
         </div>
@@ -76,7 +78,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 pb-12">
         <div className="rounded-2xl bg-zinc-900 p-8 text-white ring-1 ring-white/10 dark:bg-zinc-900 dark:ring-white/10">
           <h2 className="text-xl font-bold">Contact</h2>
-          <p className="mt-2 text-sm opacity-80">Email: {s.contact_email||"ict@mavi.edu.np"}</p>
+          <p className="mt-2 text-sm opacity-80">Email: {s.contact_email||"sagar@sagarb.com"}</p>
           <p className="text-sm opacity-80">Mavi Imiliya, Nepal</p>
         </div>
       </section>

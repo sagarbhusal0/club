@@ -40,7 +40,7 @@ export const boardApplications = pgTable(
     phone: varchar("phone", { length: 30 }).notNull(),
     grade: varchar("grade", { length: 50 }).notNull(),
     section: varchar("section", { length: 50 }).notNull(),
-    studentId: varchar("student_id", { length: 50 }).notNull(),
+    studentId: varchar("student_id", { length: 50 }),
     dateOfBirth: varchar("date_of_birth", { length: 20 }),
     profilePhoto: text("profile_photo"),
     firstChoicePositionId: uuid("first_choice_position_id").references(() => boardPositions.id),

@@ -14,6 +14,18 @@ export async function submitBoardApplication(data: unknown, ip: string) {
   const parsed = boardApplicationSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data as unknown as Record<string,string> & { confirm:boolean };
+  if (d.firstChoicePositionId?.startsWith("fallback-")) {
+    const name = d.firstChoicePositionId==="fallback-treasurer" ? "Treasurer" : d.firstChoicePositionId==="fallback-member" ? "Member" : null;
+    if (name) {
+      const [p] = await db.select().from(boardPositions).where(eq(boardPositions.name, name)).limit(1);
+      if (p) d.firstChoicePositionId = p.id;
+      else {
+        const [ins] = await db.insert(boardPositions).values({ name, description: name==="Treasurer"?"Manage finances":"General member — contribute across club activities", sortOrder: name==="Treasurer"?"12":"13" }).onConflictDoNothing().returning();
+        const resolved = ins || (await db.select().from(boardPositions).where(eq(boardPositions.name, name)).limit(1))[0];
+        if (resolved) d.firstChoicePositionId = resolved.id;
+      }
+    }
+  }
 
   const year = new Date().getFullYear();
   const prefix = `ICT-BOARD-${year}-`;
@@ -34,11 +46,10 @@ export async function submitBoardApplication(data: unknown, ip: string) {
         phone: d.phone,
         grade: d.grade,
         section: d.section,
-        studentId: d.studentId,
+        studentId: d.studentId||null,
         dateOfBirth: d.dateOfBirth||null,
         profilePhoto: d.profilePhoto||null,
         firstChoicePositionId: d.firstChoicePositionId||null,
-        secondChoicePositionId: d.secondChoicePositionId||null,
         technicalInterests: d.technicalInterests||null,
         expertise: d.expertise||null,
         experience: d.experience||null,
@@ -58,14 +69,10 @@ export async function submitBoardApplication(data: unknown, ip: string) {
 
     // send confirmation with full details (non-blocking for user flow)
     try {
-      let firstChoice: string|undefined, secondChoice: string|undefined;
+      let firstChoice: string|undefined;
       if (result.firstChoicePositionId) {
         const [p] = await db.select().from(boardPositions).where(eq(boardPositions.id, result.firstChoicePositionId)).limit(1);
         firstChoice = p?.name;
-      }
-      if (result.secondChoicePositionId) {
-        const [p] = await db.select().from(boardPositions).where(eq(boardPositions.id, result.secondChoicePositionId)).limit(1);
-        secondChoice = p?.name;
       }
       const emailData = boardSubmittedEmail({
         applicationNumber: result.applicationNumber,
@@ -75,7 +82,7 @@ export async function submitBoardApplication(data: unknown, ip: string) {
         grade: result.grade,
         section: result.section,
         studentId: result.studentId,
-        firstChoice, secondChoice,
+        firstChoice,
         motivation: result.motivation,
         timeCommitment: result.timeCommitment,
       });

@@ -1,19 +1,12 @@
-import { db } from "@/db";
-import { settings } from "@/db/schema";
-import HackathonForm from "./HackathonForm";
-
-export default async function RegisterPage() {
-  let categories = ["AI/ML","Cybersecurity","Web Development","Software Development","Cloud/DevOps","Open Source","General"];
-  try {
-    const rows = await db.select().from(settings);
-    const m = Object.fromEntries(rows.map(r=>[r.key,r.value]));
-    if (m.hackathon_categories) categories = m.hackathon_categories.split(",").map((s:string)=>s.trim());
-  } catch {}
+export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Hackathon Team Registration</h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Exactly 4 members required. First member is the team leader.</p>
-      <div className="mt-6"><HackathonForm categories={categories} /></div>
+      <h1 className="text-2xl font-bold tracking-tight">Hackathon Registration — Closed</h1>
+      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-900 dark:bg-amber-950/30">
+        <p className="font-semibold text-amber-900 dark:text-amber-200">Registration is Closed.</p>
+        <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">Hackathon is currently closed for new teams. Check back later or track your existing team below.</p>
+        <a href="/hackathon/status" className="mt-4 inline-flex rounded-lg bg-zinc-900 px-5 py-2 text-sm font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900">Check Team Status →</a>
+      </div>
     </div>
   );
 }
