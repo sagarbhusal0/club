@@ -1,4 +1,9 @@
 @import "tailwindcss";
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+:where(button, a, input, select, textarea, [role="button"]) { -webkit-tap-highlight-color: transparent; }
+@supports (padding: max(0px)) {
+  body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+}
 @custom-variant dark (&:where(.dark, .dark *));
 @theme inline {
   --color-background: var(--background);

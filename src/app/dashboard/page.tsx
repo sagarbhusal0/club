@@ -22,55 +22,55 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">My Applications</h1>
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
+      <h1 className="text-xl font-bold tracking-tight sm:text-2xl">My Applications</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Search by Application/Team ID or email to see your board applications and hackathon teams.</p>
 
       <Card className="mt-6">
         <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label>Application / Team ID</Label><Input value={appId} onChange={e=>setAppId(e.target.value)} placeholder="ICT-BOARD-2026-0001" /></div>
-          <div><Label>Email (alternative)</Label><Input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" /></div>
+          <div><Label htmlFor="dash-q">Application / Team ID</Label><Input id="dash-q" autoComplete="off" inputMode="text" enterKeyHint="next" value={appId} onChange={e=>setAppId(e.target.value)} placeholder="ICT-BOARD-2026-0001" /></div>
+          <div><Label htmlFor="dash-email">Email <span className="font-normal text-zinc-400">— alternative</span></Label><Input id="dash-email" type="email" inputMode="email" autoComplete="email" enterKeyHint="done" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" /></div>
         </div>
-        <div className="mt-4 flex gap-2">
-          <Button onClick={lookup} disabled={loading || (!email.trim() && !appId.trim())}>{loading?"Searching...":"Search"}</Button>
-          <Button onClick={()=>{setEmail(""); setAppId(""); setData(null); setErr("");}} className="bg-zinc-200 text-zinc-800 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-100">Clear</Button>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button onClick={lookup} disabled={loading || (!email.trim() && !appId.trim())} className="w-full sm:w-auto">{loading?"Searching...":"Search"}</Button>
+          <Button onClick={()=>{setEmail(""); setAppId(""); setData(null); setErr("");}} className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 sm:w-auto">Clear</Button>
         </div>
-        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Enter either your Application/Team ID (e.g. ICT-BOARD-2026-0001) or your email — or both.</p>
-        {err && <p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">{err}</p>}
+        <p className="mt-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">Enter either your Application/Team ID (e.g. ICT-BOARD-2026-0001) or your email — or both.</p>
+        {err && <p className="mt-3 rounded-xl bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-900" role="alert">{err}</p>}
       </Card>
 
       {data && (
         <div className="mt-6 space-y-6" style={{ animation:"fadeUp 300ms var(--ease-out) both" }}>
           <div>
-            <h2 className="text-lg font-bold tracking-tight">Board Applications ({data.applications.length})</h2>
+            <h2 className="text-base font-bold tracking-tight sm:text-lg">Board Applications ({data.applications.length})</h2>
             {data.applications.length===0 ? <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">No board applications found.</p>
             : <div className="mt-3 grid gap-3">
               {data.applications.map(a=>(
-                <Card key={a.applicationNumber} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-mono text-sm font-bold">{a.applicationNumber}</p>
-                    <p className="text-sm dark:text-zinc-200">{a.fullName} · {a.grade}</p>
+                <Card key={a.applicationNumber} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="break-all font-mono text-sm font-bold">{a.applicationNumber}</p>
+                    <p className="break-words text-sm dark:text-zinc-200">{a.fullName} · {a.grade}</p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">{new Date(a.createdAt).toLocaleDateString()}</p>
                   </div>
-                  <Badge status={a.status} />
+                  <span className="self-start sm:self-auto"><Badge status={a.status} /></span>
                 </Card>
               ))}
               </div>}
           </div>
 
           <div>
-            <h2 className="text-lg font-bold tracking-tight">Hackathon Teams ({data.teams.length})</h2>
+            <h2 className="text-base font-bold tracking-tight sm:text-lg">Hackathon Teams ({data.teams.length})</h2>
             {data.teams.length===0 ? <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">No teams found.</p>
             : <div className="mt-3 grid gap-3">
               {data.teams.map(t=>(
                 <Card key={t.teamNumber}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-mono text-sm font-bold">{t.teamNumber} — {t.teamName}</p>
-                      <p className="text-sm dark:text-zinc-200">{t.projectTitle} · {t.category}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{t.members.map(m=>`${m.fullName} (${m.role})`).join(", ")}</p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words font-mono text-sm font-bold">{t.teamNumber} — {t.teamName}</p>
+                      <p className="break-words text-sm dark:text-zinc-200">{t.projectTitle} · {t.category}</p>
+                      <p className="break-words text-xs text-zinc-500 dark:text-zinc-400">{t.members.map(m=>`${m.fullName} (${m.role})`).join(", ")}</p>
                     </div>
-                    <Badge status={t.status} />
+                    <span className="shrink-0 self-start"><Badge status={t.status} /></span>
                   </div>
                 </Card>
               ))}

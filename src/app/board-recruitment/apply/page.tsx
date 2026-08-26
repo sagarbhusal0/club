@@ -34,10 +34,10 @@ export default async function ApplyPage() {
     }
   }
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Board Application</h1>
+    <div className="mx-auto max-w-3xl px-4 py-6 pb-8 sm:py-10 sm:pb-10">
+      <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Board Application</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">All fields marked * are required. Takes ~5 minutes.</p>
-      <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">⏰ Deadline: <b>{deadline}</b> · {positions.length} positions open</div>
+      <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">⏰ Deadline: <b>{deadline}</b> · {positions.length} positions open</div>
       {positions.some(p=>p.id.startsWith("fallback")) && <p className="mt-2 text-xs text-zinc-500">Positions are temporarily loaded offline — your application will still be received.</p>}
       <div className="mt-6"><ApplyForm positions={positions} /></div>
     </div>

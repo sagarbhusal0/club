@@ -1,22 +1,22 @@
 import { cn } from "@/lib/utils";
 
 export function Button({ className, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button {...p} className={cn("inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-[transform,background-color,opacity] duration-150 ease-out hover:bg-indigo-700 active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/30 dark:bg-indigo-500 dark:hover:bg-indigo-600", className)} />;
+  return <button {...p} className={cn("inline-flex min-h-11 touch-manipulation items-center justify-center rounded-xl bg-indigo-600 px-5 py-3 text-[15px] font-semibold leading-none text-white transition-[transform,background-color,opacity] duration-150 ease-out hover:bg-indigo-700 active:scale-[0.97] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/30 active:opacity-90 md:rounded-lg md:py-2.5 md:text-sm dark:bg-indigo-500 dark:hover:bg-indigo-600", className)} />;
 }
 export function Input({ className, ...p }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...p} className={cn("w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500", className)} />;
+  return <input {...p} className={cn("h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[16px] leading-none text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:h-10 md:rounded-lg md:px-3 md:text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500", className)} />;
 }
 export function Textarea({ className, ...p }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...p} className={cn("w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100", className)} />;
+  return <textarea {...p} className={cn("w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-[16px] leading-6 text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:rounded-lg md:px-3 md:py-2 md:text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500", className)} />;
 }
 export function Select({ className, ...p }: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...p} className={cn("w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100", className)} />;
+  return <select {...p} className={cn("h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[16px] text-zinc-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:h-10 md:rounded-lg md:px-3 md:text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100", className)} />;
 }
 export function Label({ className, ...p }: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  return <label {...p} className={cn("text-sm font-medium text-zinc-700 dark:text-zinc-300", className)} />;
+  return <label {...p} className={cn("mb-1.5 block text-[13px] font-semibold leading-none tracking-wide text-zinc-700 md:text-sm dark:text-zinc-300", className)} />;
 }
 export function Card({ className, ...p }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div {...p} className={cn("rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition-[transform,box-shadow] duration-200 ease-out will-change-transform dark:border-zinc-800 dark:bg-zinc-900 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-[1px] [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md", className)} />;
+  return <div {...p} className={cn("rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition-[transform,box-shadow] duration-200 ease-out will-change-transform sm:p-6 md:rounded-xl dark:border-zinc-800 dark:bg-zinc-900 [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-[1px] [@media(hover:hover)_and_(pointer:fine)]:hover:shadow-md", className)} />;
 }
 export function Badge({ status }: { status: string }) {
   const m: Record<string,string> = {
