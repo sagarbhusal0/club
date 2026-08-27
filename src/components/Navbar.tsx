@@ -27,7 +27,7 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-zinc-800 dark:bg-zinc-950/70" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <header className="sticky top-0 z-40 isolate border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 md:bg-white/80 md:backdrop-blur md:supports-[backdrop-filter]:bg-white/70 dark:md:bg-zinc-950/70 dark:md:supports-[backdrop-filter]:bg-zinc-950/70" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link href="/" className="flex items-center gap-3 py-1" onClick={() => setOpen(false)}>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[11px] font-black tracking-widest text-white dark:bg-white dark:text-zinc-900">IM</span>
@@ -91,7 +91,7 @@ export default function Navbar() {
           </div>
         </nav>
       </div>
-      {open && <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="fixed inset-0 top-[57px] z-30 bg-zinc-900/10 backdrop-blur-[2px] md:hidden" />}
+      {open && <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="fixed inset-0 top-[57px] z-30 bg-zinc-900/20 md:hidden" />}
     </header>
   );
 }

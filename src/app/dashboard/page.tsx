@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 import { Input, Button, Label, Card, Badge } from "@/components/ui";
+import { NoteModal } from "@/components/NoteModal";
 
 export default function DashboardPage() {
   const [email,setEmail]=useState("");
   const [appId,setAppId]=useState("");
-  const [data,setData]=useState<{applications:{applicationNumber:string;fullName:string;status:string;grade:string;createdAt:string}[];teams:{teamNumber:string;teamName:string;projectTitle:string;category:string;status:string;members:{fullName:string;role:string}[]}[]} | null>(null);
+  const [data,setData]=useState<{applications:{applicationNumber:string;fullName:string;status:string;adminNotes:string|null;grade:string;createdAt:string}[];teams:{teamNumber:string;teamName:string;projectTitle:string;category:string;status:string;adminNotes:string|null;members:{fullName:string;role:string}[]}[]} | null>(null);
   const [err,setErr]=useState(""); const [loading,setLoading]=useState(false);
+  const [modal,setModal]=useState<{title:string; subtitle:string; status:string; note:string|null} | null>(null);
 
   async function lookup(){
     setErr(""); setData(null); setLoading(true);
@@ -75,7 +77,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-900 dark:text-zinc-100">Board Applications <span className="font-normal normal-case tracking-normal text-zinc-400">· {data.applications.length}</span></h2>
-                <span className="hidden text-xs font-normal text-zinc-400 sm:inline">Newest first</span>
+                <span className="hidden text-xs font-normal text-zinc-400 sm:inline">Newest first · tap for admin note</span>
               </div>
               {data.applications.length===0 ? (
                 <div className="mt-3 rounded-[16px] border border-dashed border-zinc-200 bg-white px-5 py-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
@@ -86,14 +88,17 @@ export default function DashboardPage() {
               ) : (
                 <div className="mt-3 grid gap-3">
                   {data.applications.map(a=>(
-                    <div key={a.applicationNumber} className="group flex flex-col gap-3 rounded-[16px] border border-zinc-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:border-zinc-300 hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                      <div className="min-w-0">
-                        <p className="break-all font-mono text-[13px] font-medium tracking-tight text-zinc-900 dark:text-zinc-100">{a.applicationNumber}</p>
-                        <p className="mt-0.5 break-words text-sm font-normal text-zinc-600 dark:text-zinc-300">{a.fullName} <span className="text-zinc-300 dark:text-zinc-600">·</span> {a.grade}</p>
-                        <p className="mt-1 text-xs font-normal text-zinc-400">{new Date(a.createdAt).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" })}</p>
+                    <button key={a.applicationNumber} type="button" onClick={() => setModal({ title: a.fullName, subtitle: a.applicationNumber, status: a.status, note: a.adminNotes })} className="group w-full text-left rounded-[16px] border border-zinc-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:border-zinc-300 hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900 sm:p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <p className="break-all font-mono text-[13px] font-medium tracking-tight text-zinc-900 dark:text-zinc-100">{a.applicationNumber}</p>
+                          <p className="mt-0.5 break-words text-sm font-normal text-zinc-600 dark:text-zinc-300">{a.fullName} <span className="text-zinc-300 dark:text-zinc-600">·</span> {a.grade}</p>
+                          <p className="mt-1 text-xs font-normal text-zinc-400">{new Date(a.createdAt).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" })}</p>
+                        </div>
+                        <Badge status={a.status} />
                       </div>
-                      <Badge status={a.status} />
-                    </div>
+                      <p className="mt-3 text-xs font-medium text-indigo-600 dark:text-indigo-400">View admin note →</p>
+                    </button>
                   ))}
                 </div>
               )}
@@ -109,7 +114,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="mt-3 grid gap-3">
                   {data.teams.map(t=>(
-                    <div key={t.teamNumber} className="group rounded-[16px] border border-zinc-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:border-zinc-300 hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900 sm:p-5">
+                    <button key={t.teamNumber} type="button" onClick={() => setModal({ title: `${t.teamName} — ${t.projectTitle}`, subtitle: t.teamNumber, status: t.status, note: t.adminNotes })} className="group w-full text-left rounded-[16px] border border-zinc-200 bg-white p-4 transition-[border-color,box-shadow,transform] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:border-zinc-300 hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] active:scale-[0.99] dark:border-zinc-800 dark:bg-zinc-900 sm:p-5">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
                           <p className="break-words font-mono text-[13px] font-medium tracking-tight text-zinc-900 dark:text-zinc-100">{t.teamNumber} <span className="font-sans font-medium">— {t.teamName}</span></p>
@@ -118,7 +123,8 @@ export default function DashboardPage() {
                         </div>
                         <span className="shrink-0 self-start"><Badge status={t.status} /></span>
                       </div>
-                    </div>
+                      <p className="mt-3 text-xs font-medium text-indigo-600 dark:text-indigo-400">View admin note →</p>
+                    </button>
                   ))}
                 </div>
               )}
@@ -126,6 +132,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      <NoteModal open={!!modal} onClose={() => setModal(null)} title={modal?.title || ""} subtitle={modal?.subtitle} status={modal?.status || ""} note={modal?.note ?? null} />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get("q") || req.nextUrl.searchParams.get("applicationId") || "").trim().toUpperCase();
 
   let applications: typeof boardApplications.$inferSelect[] = [];
-  let teams: { teamNumber:string; teamName:string; projectTitle:string; category:string; status:string; members:{fullName:string;role:string}[] }[] = [];
+  let teams: { teamNumber:string; teamName:string; projectTitle:string; category:string; status:string; adminNotes: string | null; members:{fullName:string;role:string}[] }[] = [];
 
   if (email && email.includes("@")) {
     applications = await db.select().from(boardApplications).where(eq(boardApplications.email, email));
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       const teamRows = await db.select().from(hackathonTeams).where(inArray(hackathonTeams.id, teamIds));
       for (const t of teamRows) {
         const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, t.id));
-        teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
+        teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, adminNotes: t.adminNotes, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
       }
     }
     if (q) {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       const teamById = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, q)).limit(1);
       for (const t of teamById) if (!teams.some(x=>x.teamNumber===t.teamNumber)) {
         const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, t.id));
-        teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
+        teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, adminNotes: t.adminNotes, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
       }
     }
   } else if (q) {
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const teamById = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, q)).limit(1);
     for (const t of teamById) {
       const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, t.id));
-      teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
+      teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, adminNotes: t.adminNotes, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
     }
   } else {
     return NextResponse.json({ error:"Enter your email or Application/Team ID" },{status:400});
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   if (applications.length===0 && teams.length===0) return NextResponse.json({ error: q ? `No result for ${q}` : "No applications or teams found for this email" },{status:404});
 
   return NextResponse.json({
-    applications: applications.map(a=>({ applicationNumber:a.applicationNumber, fullName:a.fullName, status:a.status, grade:a.grade, createdAt:a.createdAt })),
+    applications: applications.map(a=>({ applicationNumber:a.applicationNumber, fullName:a.fullName, status:a.status, adminNotes: a.adminNotes, grade:a.grade, createdAt:a.createdAt })),
     teams,
   });
 }
