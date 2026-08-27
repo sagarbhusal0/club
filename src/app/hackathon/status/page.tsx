@@ -15,7 +15,8 @@ export default function HackStatusPage() {
     setLoading(false);
   }
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 sm:py-12">
+    <div className="bg-[#f8f7f5] dark:bg-zinc-950">
+      <div className="mx-auto max-w-lg px-4 py-8 sm:py-10">
       <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Check Team Status</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Enter your Team ID and leader email.</p>
       <Card className="mt-6 space-y-4">
@@ -25,6 +26,7 @@ export default function HackStatusPage() {
         {err && <p className="rounded-xl bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700 ring-1 ring-red-200 dark:bg-red-950/30 dark:text-red-300 dark:ring-red-900" role="alert">{err}</p>}
         {res && <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-zinc-700 dark:bg-zinc-800/60" style={{ animation:"scaleIn 220ms var(--ease-out) both" }}><p className="break-words dark:text-zinc-100">Team: {res.teamName}</p><p className="break-words dark:text-zinc-100">Project: {res.projectTitle}</p><p className="mt-2 flex flex-wrap items-center gap-2 dark:text-zinc-100">Status: <Badge status={res.status} /></p></div>}
       </Card>
+      </div>
     </div>
   );
 }

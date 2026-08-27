@@ -19,7 +19,8 @@ export default function StatusPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 sm:py-12">
+    <div className="bg-[#f8f7f5] dark:bg-zinc-950">
+      <div className="mx-auto max-w-lg px-4 py-8 sm:py-10">
       <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Check Application Status</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Enter your Application ID and email.</p>
       <Card className="mt-6 space-y-4">
@@ -35,6 +36,7 @@ export default function StatusPage() {
           </div>
         )}
       </Card>
+      </div>
     </div>
   );
 }

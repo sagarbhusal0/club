@@ -51,7 +51,7 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
 
   const errText = (k: string) => {
     const v = (errors as Record<string,{message?:string}>)[k];
-    return v?.message ? <p className="mt-1.5 text-xs font-medium leading-none text-red-600 dark:text-red-400" role="alert">{String(v.message)}</p> : null;
+    return v?.message ? <p className="mt-2 flex items-start gap-1.5 text-xs font-normal leading-5 text-red-600 dark:text-red-400" role="alert"><span aria-hidden className="mt-0.5 inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">!</span>{String(v.message)}</p> : null;
   };
 
   return (

@@ -16,8 +16,10 @@ export default function LoginPage() {
     router.push(j.role==="ADMIN" ? "/admin" : "/dashboard");
   }
   return (
-    <div className="mx-auto max-w-md px-4 py-8 sm:py-16">
-      <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Login</h1>
+    <div className="bg-[#f8f7f5] dark:bg-zinc-950">
+      <div className="mx-auto max-w-md px-4 py-8 sm:py-12">
+      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-400">Access</p>
+      <h1 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">Sign in</h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Board members and admins — sign in to continue.</p>
       <Card className="mt-6" style={{ animation:"fadeUp 260ms var(--ease-out) both" }}>
         <form onSubmit={submit} className="space-y-4" noValidate>
@@ -27,6 +29,7 @@ export default function LoginPage() {
           <Button type="submit" disabled={loading} className="w-full">{loading?"Signing in...":"Sign In"}</Button>
         </form>
       </Card>
+      </div>
     </div>
   );
 }

@@ -30,14 +30,18 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   --hairline: #27272a;
   --paper: #171717;
 }
-html { font-family: var(--font-plex-sans); }
+html { font-family: var(--font-plex-sans); font-weight: 400; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 :root, .dark { color-scheme: light; }
 .dark { color-scheme: dark; }
 * { scrollbar-width: thin; }
 ::selection { background: #0f0f0f; color: #fff; }
 .dark ::selection { background: #fafafa; color: #0a0a0a; }
+*:focus-visible { outline: 2px solid #0f0f0f; outline-offset: 2px; }
+.dark *:focus-visible { outline-color: #fafafa; }
+:where(a, button, [role="button"]):focus-visible { outline-offset: 3px; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
