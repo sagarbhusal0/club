@@ -29,7 +29,7 @@ async function seed() {
   for (const p of positions) {
     await sql`INSERT INTO board_positions (name, description, sort_order) VALUES (${p.name}, ${p.description}, ${p.sortOrder}) ON CONFLICT (name) DO NOTHING`;
   }
-  await sql`UPDATE board_positions SET is_active = (name IN ('Treasurer','Member'))`;
+  await sql`UPDATE board_positions SET is_active = (name = 'Member')`;
 
   const defaults: [string, string][] = [
     ["club_name", "ICT Mavi Imiliya Club"],

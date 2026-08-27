@@ -15,12 +15,12 @@ export async function submitBoardApplication(data: unknown, ip: string) {
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data as unknown as Record<string,string> & { confirm:boolean };
   if (d.firstChoicePositionId?.startsWith("fallback-")) {
-    const name = d.firstChoicePositionId==="fallback-treasurer" ? "Treasurer" : d.firstChoicePositionId==="fallback-member" ? "Member" : null;
+    const name = d.firstChoicePositionId==="fallback-member" ? "Member" : null;
     if (name) {
       const [p] = await db.select().from(boardPositions).where(eq(boardPositions.name, name)).limit(1);
       if (p) d.firstChoicePositionId = p.id;
       else {
-        const [ins] = await db.insert(boardPositions).values({ name, description: name==="Treasurer"?"Manage finances":"General member — contribute across club activities", sortOrder: name==="Treasurer"?"12":"13" }).onConflictDoNothing().returning();
+        const [ins] = await db.insert(boardPositions).values({ name, description: "General member — contribute across club activities", sortOrder: "13" }).onConflictDoNothing().returning();
         const resolved = ins || (await db.select().from(boardPositions).where(eq(boardPositions.name, name)).limit(1))[0];
         if (resolved) d.firstChoicePositionId = resolved.id;
       }
