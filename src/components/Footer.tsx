@@ -24,9 +24,9 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-8 flex items-center justify-between border-t border-zinc-100 pt-6 text-xs text-zinc-400 dark:border-zinc-900">
-          <span>© {new Date().getFullYear()} ICT Mavi Imiliya Club</span>
-          <span className="hidden sm:inline">Crafted with care.</span>
+        <div className="mt-8 flex flex-col gap-2 border-t border-zinc-100 pt-6 text-xs text-zinc-400 dark:border-zinc-900 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} ICT Mavi Imiliya Club · Crafted by <a href="https://www.sagarb.com" target="_blank" rel="noopener noreferrer" className="font-medium text-zinc-600 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-900 hover:decoration-zinc-900 dark:text-zinc-300 dark:decoration-zinc-700 dark:hover:text-white">Sagar Bhusal</a></span>
+          <span className="hidden sm:inline">Learn. Build. Lead.</span>
         </div>
       </div>
     </footer>
