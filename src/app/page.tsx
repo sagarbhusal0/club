@@ -6,80 +6,245 @@ import { registrationStatus, hackathonStatus } from "@/lib/utils";
 async function getSettings() {
   try {
     const rows = await db.select().from(settings);
-    return Object.fromEntries(rows.map(r=>[r.key,r.value]));
-  } catch { return {} as Record<string,string>; }
+    return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  } catch {
+    return {} as Record<string, string>;
+  }
 }
 
-const domains = ["AI / Machine Learning","Cybersecurity","Web Development","Software Development","Cloud / DevOps","Programming","Open Source"];
+const domains = ["AI / Machine Learning", "Cybersecurity", "Web Development", "Software Development", "Cloud / DevOps", "Programming", "Open Source"];
 
 export default async function Home() {
   const s = await getSettings();
-  const boardStatus = registrationStatus(s.board_opens||"2026-01-01", s.board_closes||"2026-12-31");
-  const hackStatus = hackathonStatus(s.hackathon_opens||"2026-01-01", s.hackathon_closes||"2026-12-31");
+  const boardStatus = registrationStatus(s.board_opens || "2026-01-01", s.board_closes || "2026-12-31");
+  const hackStatus = hackathonStatus(s.hackathon_opens || "2026-01-01", s.hackathon_closes || "2026-12-31");
 
   return (
-    <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-800 px-4 py-10 sm:py-14 md:py-20 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_20%_10%,rgba(255,255,255,0.12),transparent_60%)]" />
-        <div className="relative mx-auto max-w-6xl text-center">
-          <p className="text-xs font-semibold tracking-widest opacity-80 sm:text-sm" style={{ animation:"fadeUp 420ms var(--ease-out) both" }}>Mavi Imiliya — ICT Club</p>
-          <h1 className="mt-3 text-[30px] font-extrabold tracking-tight sm:text-4xl md:text-6xl" style={{ animation:"fadeUp 420ms var(--ease-out) 80ms both" }}>ICT Mavi Imiliya Club</h1>
-          <p className="mt-2 text-lg opacity-90 sm:mt-3 sm:text-xl" style={{ animation:"fadeUp 420ms var(--ease-out) 160ms both" }}>Learn. Build. Lead.</p>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed opacity-80 sm:mt-4" style={{ animation:"fadeUp 420ms var(--ease-out) 200ms both" }}>Join the most active technology community — build real projects, compete, and lead.</p>
-          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4" style={{ animation:"fadeUp 420ms var(--ease-out) 280ms both" }}>
-            <Link href="/board-recruitment" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-white px-6 py-3.5 text-[15px] font-semibold text-indigo-700 shadow transition-[transform,background-color] duration-150 ease-out hover:bg-zinc-100 active:scale-[0.97] sm:w-auto sm:px-8">Apply for Board →</Link>
-            {hackStatus==="OPEN"
-              ? <Link href="/hackathon" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-[15px] font-semibold backdrop-blur transition-[transform,background-color] duration-150 ease-out hover:bg-white/20 active:scale-[0.97] sm:w-auto sm:px-8">Register for Hackathon</Link>
-              : <span className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-[15px] font-semibold opacity-70 sm:w-auto sm:px-8">Hackathon Closed</span>}
+    <div className="bg-[#f8f7f5] dark:bg-zinc-950">
+      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12 lg:py-16">
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <div>
+              <p
+                className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500"
+                style={{ animation: "fadeUp 420ms var(--ease-out) both" }}
+              >
+                Mavi Imiliya — ICT Club · Est. 2024
+              </p>
+              <h1
+                className="mt-4 text-[34px] font-[650] leading-[0.95] tracking-[-0.04em] text-zinc-900 antialiased sm:text-[44px] lg:text-[56px] dark:text-zinc-100"
+                style={{ animation: "fadeUp 420ms var(--ease-out) 60ms both" }}
+              >
+                Learn.
+                <br />
+                Build.
+                <br />
+                <span className="text-zinc-400 dark:text-zinc-600">Lead.</span>
+              </h1>
+              <p
+                className="mt-5 max-w-[48ch] text-[15px] leading-6 text-zinc-600 dark:text-zinc-400"
+                style={{ animation: "fadeUp 420ms var(--ease-out) 120ms both" }}
+              >
+                The most active technology community on campus. Real projects, workshops, and mentorship — from AI and cybersecurity to web and open source.
+              </p>
+              <div
+                className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+                style={{ animation: "fadeUp 420ms var(--ease-out) 180ms both" }}
+              >
+                <Link
+                  href="/board-recruitment"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-900 px-6 text-sm font-semibold tracking-tight text-white antialiased transition-[transform,background-color] duration-150 ease-out hover:bg-black active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                >
+                  Apply as Member — deadline Mon 31 Aug
+                </Link>
+                {hackStatus === "OPEN" ? (
+                  <Link
+                    href="/hackathon"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-semibold text-zinc-900 transition-[transform,background-color,border-color] duration-150 ease-out hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    Hackathon
+                  </Link>
+                ) : (
+                  <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-6 text-sm font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500">
+                    Hackathon — Closed
+                  </span>
+                )}
+              </div>
+              <div
+                className="mt-6 flex flex-wrap items-center gap-2 text-xs"
+                style={{ animation: "fadeUp 420ms var(--ease-out) 220ms both" }}
+              >
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-medium ${boardStatus === "OPEN" ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900" : boardStatus === "CLOSED" ? "border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900" : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200"}`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${boardStatus === "OPEN" ? "bg-emerald-400" : boardStatus === "CLOSED" ? "bg-zinc-300" : "bg-amber-400"}`} />
+                  Board: {boardStatus.replace("_", " ")}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-medium ${hackStatus === "OPEN" ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900" : "border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"}`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${hackStatus === "OPEN" ? "bg-emerald-400" : "bg-zinc-300"}`} />
+                  Hackathon: {hackStatus.replace("_", " ")}
+                </span>
+                <span className="hidden text-zinc-300 dark:text-zinc-700 sm:inline">·</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Deadline Mon, 31 Aug — 11:59 PM</span>
+              </div>
+            </div>
+
+            <div className="grid gap-3" style={{ animation: "fadeUp 420ms var(--ease-out) 260ms both" }}>
+              <div className="rounded-[20px] border border-zinc-200 bg-[#fcfcfb] p-5 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Now open</p>
+                    <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Member — General membership</p>
+                    <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">One role. Direct application. No second choice.</p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-zinc-900 px-2.5 py-1 text-xs font-semibold tracking-widest text-white dark:bg-white dark:text-zinc-900">OPEN</span>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Opens</p>
+                    <p className="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">{s.board_opens || "2026-08-26"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Deadline</p>
+                    <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{s.board_closes || "2026-08-31"}</p>
+                    <p className="text-xs text-zinc-500">11:59 PM</p>
+                  </div>
+                  <div className="text-right">
+                    <Link
+                      href="/board-recruitment/apply"
+                      className="inline-flex h-8 items-center justify-center rounded-full bg-zinc-900 px-3 text-xs font-semibold text-white hover:bg-black dark:bg-white dark:text-zinc-900"
+                    >
+                      Apply →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-900">
+                <span className="font-medium text-zinc-600 dark:text-zinc-400">Need your application ID?</span>
+                <Link href="/board-recruitment/status" className="font-semibold text-zinc-900 underline decoration-zinc-200 underline-offset-4 hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-700">
+                  Check status
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="mt-6 flex justify-center gap-3 text-xs" style={{ animation:"fadeUp 420ms var(--ease-out) 360ms both" }}>
-            <span className={`rounded-full px-3 py-1 font-semibold ring-1 ring-white/20 ${boardStatus==="OPEN"?"bg-green-400 text-green-950":boardStatus==="CLOSED"?"bg-red-300 text-red-900":"bg-yellow-300 text-yellow-900"}`}>Board: {boardStatus.replace("_"," ")}</span>
-            <span className={`rounded-full px-3 py-1 font-semibold ring-1 ring-white/20 ${hackStatus==="OPEN"?"bg-green-400 text-green-950":hackStatus==="CLOSED"?"bg-red-300 text-red-900":"bg-yellow-300 text-yellow-900"}`}>Hackathon: {hackStatus.replace("_"," ")}</span>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
+        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">About</p>
+            <h2 className="mt-3 text-[22px] font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-100">A club that ships.</h2>
+            <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              ICT Mavi Imiliya Club is for students who want to make things — not just talk about them. Small teams, real projects, and mentors who care about craft.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href="/board-recruitment"
+              className="group rounded-[20px] border border-zinc-200 bg-white p-5 transition-[transform,border-color,box-shadow] duration-200 ease-out hover:border-zinc-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board Recruitment</p>
+              <p className="mt-2 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Member — 1 position</p>
+              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">Apply till Mon 31 Aug. Takes ~5 minutes.</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                View details <span aria-hidden className="transition-transform duration-150 ease-out group-hover:translate-x-0.5">→</span>
+              </span>
+            </Link>
+            <Link
+              href="/hackathon"
+              className="group rounded-[20px] border border-zinc-200 bg-white p-5 transition-[transform,border-color,box-shadow] duration-200 ease-out hover:border-zinc-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon</p>
+              <p className="mt-2 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Teams of 4</p>
+              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">Registration currently closed. Browse status.</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                Explore <span aria-hidden className="transition-transform duration-150 ease-out group-hover:translate-x-0.5">→</span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
-        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">About the Club</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">ICT Mavi Imiliya Club empowers students to explore technology through hands-on projects, workshops, competitions and mentorship. Whether you love AI, cybersecurity, web development or open source — there is a place for you.</p>
-      </section>
-
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 sm:gap-6 md:grid-cols-2">
-        <div className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:shadow-md sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <h3 className="text-lg font-bold">Board Recruitment</h3>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">12 positions available. Apply to lead the next committee.</p>
-          <Link href="/board-recruitment" className="mt-4 inline-flex min-h-11 items-center gap-1 self-start rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-[transform,background-color] duration-150 ease-out hover:bg-indigo-700 active:scale-[0.97] group-hover:gap-2">View Positions <span aria-hidden>→</span></Link>
+      <section className="mx-auto max-w-6xl px-4 pb-4">
+        <div className="flex items-baseline justify-between gap-4 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Technical domains</h2>
+          <span className="hidden text-xs text-zinc-400 sm:inline">Hover — subtle lift. No gimmicks.</span>
         </div>
-        <div className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:shadow-md sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <h3 className="text-lg font-bold">Hackathon</h3>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Form a team of 4 and build something amazing.</p>
-          <Link href="/hackathon" className="mt-4 inline-flex min-h-11 items-center gap-1 self-start rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-[transform,background-color] duration-150 ease-out hover:bg-black active:scale-[0.97] group-hover:gap-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">Explore Hackathon <span aria-hidden>→</span></Link>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
-        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Technical Domains</h2>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-6 md:grid-cols-4">
-          {domains.map((d,i)=>(
-            <div key={d} className="min-h-[84px] rounded-xl border border-zinc-200 bg-white px-3 py-5 text-center text-sm font-semibold shadow-sm transition-[transform,box-shadow] duration-200 ease-out will-change-transform hover:-translate-y-[1px] hover:shadow-md sm:px-4 sm:py-6 dark:border-zinc-800 dark:bg-zinc-900" style={{ animation:`fadeUp 360ms var(--ease-out) ${i*50}ms both` }}>{d}</div>
+        <div className="mt-4 grid grid-cols-2 gap-0 overflow-hidden rounded-[16px] border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 sm:grid-cols-4">
+          {domains.map((d, i) => (
+            <div
+              key={d}
+              className="group relative border-b border-r border-zinc-100 p-4 text-sm font-medium leading-tight text-zinc-700 transition-colors duration-150 ease-out last:border-b-0 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800/50 sm:p-5"
+              style={{ animation: `fadeUp 360ms var(--ease-out) ${i * 40}ms both` }}
+            >
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">0{i + 1}</span>
+              <p className="mt-2 font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{d}</p>
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-6">
-        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">Important Dates</h2>
-        <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">BOARD</p><p className="mt-1 text-sm dark:text-zinc-200">Opens: {s.board_opens||"2026-08-26"}</p><p className="text-sm font-semibold text-amber-600 dark:text-amber-400">Deadline: {s.board_closes||"2026-08-31"} · Mon, 31 Aug 11:59 PM</p></div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-violet-600 dark:text-violet-400">HACKATHON REG</p><p className="mt-1 text-sm dark:text-zinc-200">Opens: {s.hackathon_opens||"—"}</p><p className="text-sm dark:text-zinc-200">Closes: {s.hackathon_closes||"—"}</p></div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"><p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">HACKATHON DAY</p><p className="mt-1 text-lg font-bold dark:text-zinc-100">{s.hackathon_date||"TBA"}</p></div>
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Important dates</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-[16px] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board</p>
+            <div className="mt-3 space-y-1 text-sm">
+              <p className="flex justify-between gap-4">
+                <span className="text-zinc-500">Opens</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.board_opens || "2026-08-26"}</span>
+              </p>
+              <p className="flex justify-between gap-4">
+                <span className="text-zinc-500">Deadline</span>
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{s.board_closes || "2026-08-31"} · 11:59 PM</span>
+              </p>
+            </div>
+            <p className="mt-3 rounded-full bg-zinc-900 px-3 py-1.5 text-center text-xs font-semibold text-white dark:bg-white dark:text-zinc-900">Mon, 31 Aug</p>
+          </div>
+          <div className="rounded-[16px] border border-zinc-200 bg-white p-5 opacity-70 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Reg</p>
+            <div className="mt-3 space-y-1 text-sm">
+              <p className="flex justify-between gap-4">
+                <span className="text-zinc-500">Opens</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.hackathon_opens || "—"}</span>
+              </p>
+              <p className="flex justify-between gap-4">
+                <span className="text-zinc-500">Closes</span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.hackathon_closes || "—"}</span>
+              </p>
+            </div>
+            <p className="mt-3 text-xs text-zinc-500">Currently closed</p>
+          </div>
+          <div className="rounded-[16px] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Day</p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{s.hackathon_date || "TBA"}</p>
+            <p className="mt-1 text-xs text-zinc-500">Keep an eye on announcements</p>
+          </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <div className="rounded-2xl bg-zinc-900 p-8 text-white ring-1 ring-white/10 dark:bg-zinc-900 dark:ring-white/10">
-          <h2 className="text-xl font-bold">Contact</h2>
-          <p className="mt-2 text-sm opacity-80">Email: {s.contact_email||"sagar@sagarb.com"}</p>
-          <p className="text-sm opacity-80">Mavi Imiliya, Nepal</p>
+        <div className="rounded-[20px] border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Contact</h2>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <a href="mailto:sagar@sagarb.com" className="font-medium text-zinc-900 underline decoration-zinc-200 underline-offset-4 hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-700">
+                  sagar@sagarb.com
+                </a>{" "}
+                <span className="text-zinc-400">·</span> Mavi Imiliya, Nepal
+              </p>
+            </div>
+            <Link
+              href="/board-recruitment/apply"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-zinc-900 px-5 text-sm font-semibold text-white hover:bg-black dark:bg-white dark:text-zinc-900"
+            >
+              Apply now
+            </Link>
+          </div>
         </div>
       </section>
     </div>

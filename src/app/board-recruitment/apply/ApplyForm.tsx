@@ -44,7 +44,7 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
       <p className="text-2xl">🎉</p>
       <h2 className="mt-2 text-xl font-bold">Application Submitted!</h2>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Your application ID:</p>
-      <p className="mt-1 break-all font-mono text-lg font-bold text-indigo-600 dark:text-indigo-400">{done}</p>
+      <p className="mt-1 break-all font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">{done}</p>
       <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Save this ID to check your status later.</p>
     </Card>
   );
@@ -59,7 +59,7 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
       <div ref={topRef} className="scroll-mt-20">
         <div className="flex gap-1.5 sm:gap-2" aria-hidden>
           {[1,2,3,4,5].map(n=>(
-            <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ease-out sm:h-2 ${n<=step?"bg-indigo-600":"bg-zinc-200 dark:bg-zinc-800"}`} />
+            <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ease-out sm:h-2 ${n<=step?"bg-zinc-900":"bg-zinc-200 dark:bg-zinc-800"}`} />
           ))}
         </div>
         <div className="mt-3 flex items-center justify-between gap-2">
@@ -68,7 +68,7 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
         </div>
         <div className="mt-2 flex gap-1.5 sm:hidden" aria-label="Steps">
           {STEP_LABELS.map((l,i)=>(
-            <span key={l} className={`flex-1 rounded-full px-1 py-1 text-center text-[10px] font-bold leading-none tracking-wide ${i+1===step?"bg-indigo-600 text-white": i+1<step ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300":"bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"}`}>{l}</span>
+            <span key={l} className={`flex-1 rounded-full px-1 py-1 text-center text-[10px] font-bold leading-none tracking-wide ${i+1===step?"bg-zinc-900 text-white": i+1<step ? "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300":"bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"}`}>{l}</span>
           ))}
         </div>
       </div>
@@ -150,8 +150,8 @@ export default function ApplyForm({ positions }: { positions: Position[] }) {
             <p className="break-words"><b className="text-zinc-900 dark:text-zinc-100">Name:</b> {getValues("fullName")} · <b className="text-zinc-900 dark:text-zinc-100">Email:</b> <span className="break-all">{getValues("email")}</span></p>
             <p className="break-words"><b className="text-zinc-900 dark:text-zinc-100">Grade:</b> {getValues("grade")} {getValues("section")}{getValues("studentId") ? <> · <b className="text-zinc-900 dark:text-zinc-100">ID:</b> {getValues("studentId")}</> : null}</p>
           </div>
-          <label className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm has-[input:checked]:border-indigo-300 has-[input:checked]:bg-indigo-50/60 sm:p-3.5 dark:border-zinc-700 dark:bg-zinc-800/50">
-            <input type="checkbox" {...register("confirm")} className="mt-0.5 h-5 w-5 shrink-0 rounded border-zinc-300 accent-indigo-600" />
+          <label className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm has-[input:checked]:border-zinc-900 has-[input:checked]:bg-zinc-50 sm:p-3.5 dark:border-zinc-700 dark:bg-zinc-800/50">
+            <input type="checkbox" {...register("confirm")} className="mt-0.5 h-5 w-5 shrink-0 rounded border-zinc-300 accent-zinc-900" />
             <span className="leading-5">I confirm that the information provided is accurate. *</span>
           </label>
           {errText("confirm")}

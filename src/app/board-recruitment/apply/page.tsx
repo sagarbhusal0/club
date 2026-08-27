@@ -34,12 +34,20 @@ export default async function ApplyPage() {
     }
   }
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 pb-8 sm:py-10 sm:pb-10">
-      <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Board Application</h1>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">All fields marked * are required. Takes ~5 minutes.</p>
-      <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">⏰ Deadline: <b>{deadline}</b> · {positions.length} positions open</div>
-      {positions.some(p=>p.id.startsWith("fallback")) && <p className="mt-2 text-xs text-zinc-500">Positions are temporarily loaded offline — your application will still be received.</p>}
-      <div className="mt-6"><ApplyForm positions={positions} /></div>
+    <div className="bg-[#f8f7f5] dark:bg-zinc-950">
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board Application — Member</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Apply</h1>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">~5 minutes. One position. Deadline {deadline}.</p>
+        <div className="mt-4 flex items-center gap-2 text-xs">
+          <span className="inline-flex rounded-full border border-zinc-900 bg-zinc-900 px-2.5 py-1 font-semibold uppercase tracking-widest text-white dark:border-white dark:bg-white dark:text-zinc-900">Member</span>
+          <span className="text-zinc-500">· {positions.length} position open</span>
+          <span className="text-zinc-300">·</span>
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">{deadline}</span>
+        </div>
+        {positions.some(p=>p.id.startsWith("fallback")) && <p className="mt-3 text-xs leading-5 text-zinc-400">Positions loading offline — submission still works.</p>}
+        <div className="mt-6"><ApplyForm positions={positions} /></div>
+      </div>
     </div>
   );
 }
