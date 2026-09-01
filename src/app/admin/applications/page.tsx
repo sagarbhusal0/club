@@ -41,7 +41,7 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
           <tbody>
             {rows.length===0 ? <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-500 dark:text-zinc-400">No applications found</td></tr>
             : rows.map(r=>(
-              <tr key={r.id} className="border-t border-zinc-200 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/40">
+              <tr key={r.id} className="border-t border-zinc-200 transition-colors hover:bg-zinc-50 dark:bg-zinc-800/60 dark:border-zinc-800 dark:hover:bg-zinc-800/40">
                 <td className="px-3 py-2 font-mono text-xs">{r.applicationNumber}</td>
                 <td className="px-3 py-2">{r.fullName}<br/><span className="text-xs text-zinc-500 dark:text-zinc-400">{r.email}</span></td>
                 <td className="px-3 py-2 text-xs dark:text-zinc-300">{r.firstChoicePositionId ? (positions.get(r.firstChoicePositionId)||"—") : "—"}</td>

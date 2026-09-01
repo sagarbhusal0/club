@@ -4,7 +4,7 @@ import { boardApplications, hackathonTeams, hackathonMembers } from "@/db/schema
 import { eq, sql } from "drizzle-orm";
 
 export default async function AdminDashboard() {
-  let stats = { totalApps:0, pendingApps:0, shortlisted:0, selected:0, totalTeams:0, approvedTeams:0, pendingTeams:0, totalParticipants:0 };
+  let stats = { totalApps:0, pendingApps:0, shortlisted:0, selected:0, totalTeams:0, approvedTeams:0, pendingTeams:0, totalParticipants:0, pendingIdeas:0, needsRevision:0, finalSubs:0, disqualified:0 };
   try {
     const [a1] = await db.select({ c: sql<number>`count(*)` }).from(boardApplications);
     const [a2] = await db.select({ c: sql<number>`count(*)` }).from(boardApplications).where(eq(boardApplications.status,"SUBMITTED"));
@@ -14,7 +14,11 @@ export default async function AdminDashboard() {
     const [t2] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.status,"APPROVED"));
     const [t3] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.status,"REGISTERED"));
     const [m1] = await db.select({ c: sql<number>`count(*)` }).from(hackathonMembers);
-    stats = { totalApps: Number(a1.c), pendingApps: Number(a2.c), shortlisted: Number(a3.c), selected: Number(a4.c), totalTeams: Number(t1.c), approvedTeams: Number(t2.c), pendingTeams: Number(t3.c), totalParticipants: Number(m1.c) };
+    const [h1] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.ideaStatus,"PENDING"));
+    const [h2] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.ideaStatus,"NEEDS_REVISION"));
+    const [h3] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.isFinalSubmitted,true));
+    const [h4] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams).where(eq(hackathonTeams.status,"DISQUALIFIED"));
+    stats = { totalApps: Number(a1.c), pendingApps: Number(a2.c), shortlisted: Number(a3.c), selected: Number(a4.c), totalTeams: Number(t1.c), approvedTeams: Number(t2.c), pendingTeams: Number(t3.c), totalParticipants: Number(m1.c), pendingIdeas: Number(h1.c), needsRevision: Number(h2.c), finalSubs: Number(h3.c), disqualified: Number(h4.c) };
   } catch {}
 
   const cards = [
@@ -22,10 +26,15 @@ export default async function AdminDashboard() {
     ["Pending", stats.pendingApps],
     ["Shortlisted", stats.shortlisted],
     ["Selected", stats.selected],
-    ["Total Teams", stats.totalTeams],
+    ["Total Teams", `${stats.totalTeams} / 9`],
+    ["Available Slots", 9 - stats.totalTeams],
+    ["Total Participants", `${stats.totalParticipants} / 27`],
     ["Approved Teams", stats.approvedTeams],
     ["Pending Teams", stats.pendingTeams],
-    ["Total Participants", stats.totalParticipants],
+    ["Pending Ideas", stats.pendingIdeas],
+    ["Needs Revision", stats.needsRevision],
+    ["Final Submissions", stats.finalSubs],
+    ["Disqualified", stats.disqualified],
   ] as const;
 
   return (

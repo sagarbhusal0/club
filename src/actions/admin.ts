@@ -99,6 +99,13 @@ export async function updateSettings(data: Record<string,string>) {
   return { success:true };
 }
 
+export async function updateIdeaStatus(id: string, ideaStatus: string, notes?: string) {
+  await ensureAdmin();
+  await db.update(hackathonTeams).set({ ideaStatus, adminNotes: notes, updatedAt: new Date() }).where(eq(hackathonTeams.id, id));
+  revalidatePath("/admin/teams");
+  return { success:true };
+}
+
 export async function togglePosition(id: string, isActive: boolean) {
   await ensureAdmin();
   await db.update(boardPositions).set({ isActive }).where(eq(boardPositions.id, id));

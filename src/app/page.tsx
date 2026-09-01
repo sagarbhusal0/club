@@ -109,7 +109,7 @@ export default async function Home() {
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Deadline</p>
                     <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{s.board_closes || "2026-08-31"}</p>
-                    <p className="text-xs text-zinc-500">11:59 PM</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">11:59 PM</p>
                   </div>
                   <div className="text-right">
                     <Link
@@ -177,7 +177,7 @@ export default async function Home() {
           {domains.map((d, i) => (
             <div
               key={d}
-              className="group relative border-b border-r border-zinc-100 p-4 text-sm font-medium leading-tight text-zinc-700 transition-colors duration-150 ease-out last:border-b-0 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800/50 sm:p-5"
+              className="group relative border-b border-r border-zinc-100 p-4 text-sm font-medium leading-tight text-zinc-700 transition-colors duration-150 ease-out last:border-b-0 hover:bg-zinc-50 dark:bg-zinc-800/60 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800/50 sm:p-5"
               style={{ animation: `fadeUp 360ms var(--ease-out) ${i * 40}ms both` }}
             >
               <span className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">0{i + 1}</span>
@@ -194,11 +194,11 @@ export default async function Home() {
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board</p>
             <div className="mt-3 space-y-1 text-sm">
               <p className="flex justify-between gap-4">
-                <span className="text-zinc-500">Opens</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Opens</span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.board_opens || "2026-08-26"}</span>
               </p>
               <p className="flex justify-between gap-4">
-                <span className="text-zinc-500">Deadline</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Deadline</span>
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100">{s.board_closes || "2026-08-31"} · 11:59 PM</span>
               </p>
             </div>
@@ -208,20 +208,20 @@ export default async function Home() {
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Reg</p>
             <div className="mt-3 space-y-1 text-sm">
               <p className="flex justify-between gap-4">
-                <span className="text-zinc-500">Opens</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Opens</span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.hackathon_opens || "—"}</span>
               </p>
               <p className="flex justify-between gap-4">
-                <span className="text-zinc-500">Closes</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Closes</span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.hackathon_closes || "—"}</span>
               </p>
             </div>
-            <p className="mt-3 text-xs text-zinc-500">Currently closed</p>
+            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Currently closed</p>
           </div>
           <div className="rounded-[16px] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Day</p>
             <p className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{s.hackathon_date || "TBA"}</p>
-            <p className="mt-1 text-xs text-zinc-500">Keep an eye on announcements</p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Keep an eye on announcements</p>
           </div>
         </div>
       </section>

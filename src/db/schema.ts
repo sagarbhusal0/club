@@ -76,19 +76,33 @@ export const hackathonTeams = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     teamNumber: varchar("team_number", { length: 30 }).notNull().unique(),
-    teamName: varchar("team_name", { length: 150 }).notNull(),
+    teamName: varchar("team_name", { length: 150 }).notNull().unique(),
     projectTitle: varchar("project_title", { length: 200 }).notNull(),
     category: varchar("category", { length: 100 }).notNull(),
     description: text("description").notNull(),
     problemStatement: text("problem_statement"),
     solution: text("solution"),
     technologyStack: text("technology_stack"),
+    projectIdeaSummary: text("project_idea_summary"),
+    ideaStatus: varchar("idea_status", { length: 20 }).notNull().default("PENDING"),
+    finalDemoUrl: text("final_demo_url"),
+    repositoryUrl: text("repository_url"),
+    documentationUrl: text("documentation_url"),
+    aiToolsUsed: text("ai_tools_used"),
+    originalWorkConfirmed: boolean("original_work_confirmed").notNull().default(false),
+    finalSubmittedAt: timestamp("final_submitted_at"),
+    isFinalSubmitted: boolean("is_final_submitted").notNull().default(false),
     status: varchar("status", { length: 20 }).notNull().default("REGISTERED"),
     adminNotes: text("admin_notes"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("ht_status_idx").on(t.status), index("ht_category_idx").on(t.category)]
+  (t) => [
+    index("ht_status_idx").on(t.status),
+    index("ht_category_idx").on(t.category),
+    index("ht_idea_status_idx").on(t.ideaStatus),
+    index("ht_final_submitted_idx").on(t.isFinalSubmitted),
+  ]
 );
 
 export const hackathonMembers = pgTable(

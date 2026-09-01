@@ -1,4 +1,6 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local", override: true });
+dotenv.config();
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
@@ -40,9 +42,10 @@ async function seed() {
     ["hackathon_opens", "2026-04-15"],
     ["hackathon_closes", "2026-05-30"],
     ["hackathon_date", "2026-06-15"],
-    ["hackathon_categories", "AI/ML,Cybersecurity,Web Development,Software Development,Cloud/DevOps,Open Source,General"],
+    ["hackathon_categories", "Student Management,Attendance,Teacher Management,Exam & Results,Timetable,Homework & Assignments,Library Management,Fee Management,Parent-School Communication,Event Management,Inventory Management,Transport Management,Student Performance,School Analytics,AI-powered School Management,Other"],
   ];
-  for (const [k, v] of defaults) {
+  const extra: [string,string][] = [["hackathon_max_teams","9"],["hackathon_members_per_team","3"],["hackathon_working_hours","4 hours"],["hackathon_break_minutes","30"]];
+  for (const [k,v] of [...defaults, ...extra]) {
     await sql`INSERT INTO settings (key, value) VALUES (${k}, ${v}) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value WHERE settings.key IN ('contact_email','board_opens','board_closes')`;
   }
 

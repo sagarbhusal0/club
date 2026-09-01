@@ -1,0 +1,18 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local", override: true });
+dotenv.config();
+import { neon } from "@neondatabase/serverless";
+const sql = neon(process.env.DATABASE_URL);
+const now = new Date();
+const opens = new Date(now); opens.setDate(now.getDate()-1);
+const closes = new Date(now); closes.setDate(now.getDate()+30);
+const boardCloses = new Date(now); boardCloses.setDate(now.getDate()+30);
+const fmt = d => d.toISOString().slice(0,10);
+console.log("Setting hackathon_opens", fmt(opens), "hackathon_closes", fmt(closes));
+await sql`INSERT INTO settings (key, value) VALUES ('hackathon_opens', ${fmt(opens)}) ON CONFLICT (key) DO UPDATE SET value = ${fmt(opens)}`;
+await sql`INSERT INTO settings (key, value) VALUES ('hackathon_closes', ${fmt(closes)}) ON CONFLICT (key) DO UPDATE SET value = ${fmt(closes)}`;
+await sql`INSERT INTO settings (key, value) VALUES ('board_opens', ${fmt(opens)}) ON CONFLICT (key) DO UPDATE SET value = ${fmt(opens)}`;
+await sql`INSERT INTO settings (key, value) VALUES ('board_closes', ${fmt(boardCloses)}) ON CONFLICT (key) DO UPDATE SET value = ${fmt(boardCloses)}`;
+const rows = await sql`SELECT key, value FROM settings WHERE key IN ('hackathon_opens','hackathon_closes','board_opens','board_closes')`;
+console.log(rows.map(r=>r.key+": "+r.value).join("\n"));
+console.log("Registration OPEN");

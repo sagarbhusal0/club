@@ -47,8 +47,8 @@ export function hackathonRegisteredEmail(t: { teamNumber:string; teamName:string
 <p><strong>Team ID: ${t.teamNumber}</strong> · Team: ${t.teamName}</p>
 ${kvTable([["Project",t.projectTitle],["Category",t.category]])}
 <div style="margin-top:8px;padding:12px;background:#f4f4f5;border-radius:8px"><strong>Description</strong><br/>${t.description}</div>
-<div style="margin-top:12px"><strong>Members (4)</strong><br/>${membersHtml}</div>
-<p style="margin-top:16px">All 4 members received this confirmation. Check status at <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/hackathon/status" style="color:#4f46e5">Hackathon Status</a> or <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/dashboard" style="color:#4f46e5">My Dashboard</a>.</p>`;
+<div style="margin-top:12px"><strong>Members (3)</strong><br/>${membersHtml}</div>
+<p style="margin-top:16px">All 3 members received this confirmation. Check status at <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/hackathon/status" style="color:#4f46e5">Hackathon Status</a> or <a href="${process.env.NEXT_PUBLIC_SITE_URL || ""}/dashboard" style="color:#4f46e5">My Dashboard</a>.</p>`;
   return { subject, html: wrap("Hackathon Registered ✅", body) };
 }
 
@@ -66,6 +66,15 @@ export function hackathonStatusEmail(t: { teamNumber:string; teamName:string; st
   return { subject, html: wrap(`Hackathon: ${t.status.replace(/_/g," ")}`, body) };
 }
 
+export function ideaStatusEmail(t: { teamNumber:string; teamName:string; ideaStatus:string; adminNotes?:string|null }) {
+  const msgs: Record<string,string> = { APPROVED: "Your project idea has been approved!", NEEDS_REVISION: "Your project idea needs revision — see admin notes.", REJECTED: "Your project idea was not approved.", PENDING: "Your project idea is pending review." };
+  const msg = msgs[t.ideaStatus] || `Idea status: ${t.ideaStatus}`;
+  const body = `<p>Hi ${t.teamName},</p><p>${msg}</p><p><strong>${t.teamNumber}</strong> · Idea: <strong>${t.ideaStatus}</strong></p>${t.adminNotes?`<div style="margin-top:12px;padding:12px;background:#fef9c3;border-radius:8px"><strong>Note:</strong><br/>${t.adminNotes}</div>`:""}`;
+  return { subject: `Project Idea ${t.ideaStatus} — ${t.teamNumber}`, html: wrap(`Idea: ${t.ideaStatus}`, body) };
+}
+export function finalSubmissionEmail(t: { teamNumber:string; teamName:string }) {
+  return { subject: `Final Submission Locked — ${t.teamNumber}`, html: wrap("Final Submission Locked", `<p>Hi ${t.teamName},</p><p>Your final submission is locked. Contact an admin if you need changes.</p><p><strong>${t.teamNumber}</strong></p>`) };
+}
 export function broadcastEmail(subject: string, htmlBody: string) {
   return { subject, html: wrap(subject, `<div>${htmlBody}</div>`) };
 }

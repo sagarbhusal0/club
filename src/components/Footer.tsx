@@ -13,9 +13,9 @@ export default function Footer() {
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Explore</p>
               <div className="flex flex-col gap-1 text-zinc-600 dark:text-zinc-400">
-                <Link href="/board-recruitment" className="hover:text-zinc-900 dark:hover:text-zinc-100">Board</Link>
-                <Link href="/hackathon" className="hover:text-zinc-900 dark:hover:text-zinc-100">Hackathon</Link>
-                <Link href="/dashboard" className="hover:text-zinc-900 dark:hover:text-zinc-100">Dashboard</Link>
+                <Link href="/board-recruitment" className="hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-100">Board</Link>
+                <Link href="/hackathon" className="hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-100">Hackathon</Link>
+                <Link href="/dashboard" className="hover:text-zinc-900 dark:text-zinc-100 dark:hover:text-zinc-100">Dashboard</Link>
               </div>
             </div>
             <div className="space-y-2">

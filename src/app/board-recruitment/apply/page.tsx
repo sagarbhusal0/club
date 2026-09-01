@@ -41,7 +41,7 @@ export default async function ApplyPage() {
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">~5 minutes. One position. Deadline {deadline}.</p>
         <div className="mt-4 flex items-center gap-2 text-xs">
           <span className="inline-flex rounded-full border border-zinc-900 bg-zinc-900 px-2.5 py-1 font-semibold uppercase tracking-widest text-white dark:border-white dark:bg-white dark:text-zinc-900">Member</span>
-          <span className="text-zinc-500">· {positions.length} position open</span>
+          <span className="text-zinc-500 dark:text-zinc-400">· {positions.length} position open</span>
           <span className="text-zinc-300">·</span>
           <span className="font-medium text-zinc-900 dark:text-zinc-100">{deadline}</span>
         </div>

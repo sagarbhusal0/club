@@ -35,7 +35,7 @@ export default async function ApplicationDetail({ params }: { params: Promise<{ 
       <Card>
         <div className="grid gap-3 text-sm">
           {fields.map(([k,v])=>(
-            <div key={k} className="border-b py-2 last:border-0"><span className="text-xs font-semibold uppercase text-zinc-500">{k}</span><p className="mt-1 whitespace-pre-wrap break-words">{v}</p></div>
+            <div key={k} className="border-b py-2 last:border-0"><span className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">{k}</span><p className="mt-1 whitespace-pre-wrap break-words">{v}</p></div>
           ))}
         </div>
       </Card>

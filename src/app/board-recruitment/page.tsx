@@ -55,7 +55,7 @@ export default async function BoardRecruitmentPage() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             {status==="OPEN"
               ? <Link href="/board-recruitment/apply" className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-900 px-6 text-sm font-semibold tracking-tight text-white antialiased hover:bg-black active:scale-[0.98] dark:bg-white dark:text-zinc-900">Apply as Member →</Link>
-              : <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-6 text-sm font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">Applications {status.replace("_"," ")}</span>}
+              : <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-6 text-sm font-medium text-zinc-500 dark:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900">Applications {status.replace("_"," ")}</span>}
             <Link href="/board-recruitment/status" className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">Check status</Link>
           </div>
         </div>
