@@ -1,5 +1,14 @@
 @import "tailwindcss";
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden; }
+body { min-width: 0; overflow-x: hidden; }
+:where(input, select, textarea) { max-width: 100%; }
+@media (max-width: 639px) {
+  :where(input, select, textarea) { font-size: 1rem !important; }
+  :where(button, a, [role="button"]) { touch-action: manipulation; }
+}
+@media (pointer: coarse) {
+  :where(button, a, [role="button"]) { min-height: 44px; }
+}
 :where(button, a, input, select, textarea, [role="button"]) { -webkit-tap-highlight-color: transparent; }
 @supports (padding: max(0px)) {
   body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
@@ -66,4 +75,17 @@ select:-webkit-autofill {
   caret-color: #f5f5f4;
   -webkit-text-fill-color: #f5f5f4;
   box-shadow: 0 0 0px 1000px #27272a inset;
+}
+
+/* Nepali (Devanagari) locale — prefer a Devanagari-capable face for all text */
+html[lang="ne"] body {
+  font-family: var(--font-noto-deva), var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+}
+html[lang="ne"] :where(h1, h2, h3, h4, button, a, label) {
+  line-height: 1.35;
+}
+@media (max-width: 639px) {
+  html[lang="ne"] body { font-size: 16px; }
+  html[lang="ne"] :where(h1, h2, h3) { overflow-wrap: anywhere; }
 }
