@@ -14,6 +14,7 @@ export const LIMITS = {
   dashboard: { limit: 15, windowMs: 60_000, message: "Too many lookups. Please try again shortly." },
   login: { limit: 5, windowMs: 60_000, message: "Too many login attempts. Please try again in a minute." },
   broadcast: { limit: 1, windowMs: 5*60_000, message: "Please wait 5 minutes between broadcasts." },
+  finalSubmission: { limit: 5, windowMs: 60_000, message: "Too many submissions. Try again shortly." },
   testEmail: { limit: 5, windowMs: 60_000, message: "Too many test emails. Try again shortly." },
 } as const;
 

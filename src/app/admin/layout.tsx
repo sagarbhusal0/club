@@ -14,8 +14,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/teams" className="hover:text-indigo-600 dark:hover:text-indigo-400">Teams</Link>
           <Link href="/admin/broadcast" className="hover:text-indigo-600 dark:hover:text-indigo-400">Broadcast</Link>
           <Link href="/admin/settings" className="hover:text-indigo-600 dark:hover:text-indigo-400">Settings</Link>
-          <span className="ml-auto text-xs text-zinc-500">{s.email}</span>
-          <form action="/api/auth/logout" method="POST"><button className="rounded-lg border px-3 py-1 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">Logout</button></form>
+          <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{s.email}</span>
+          <form action="/api/auth/logout" method="POST"><button className="rounded-lg border px-3 py-1 text-xs hover:bg-zinc-50 dark:bg-zinc-800/60 dark:border-zinc-700 dark:hover:bg-zinc-800">Logout</button></form>
         </div>
       </nav>
       <div className="mx-auto max-w-6xl px-4 py-6">{children}</div>

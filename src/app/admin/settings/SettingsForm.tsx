@@ -52,7 +52,7 @@ export default function SettingsForm({ initial, positions }: { initial: Record<s
           {positions.map(p=>(
             <div key={p.id} className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800/60">
               <span className={p.isActive?"":"opacity-50 line-through"}>{p.name}</span>
-              <Button onClick={async()=>{ await togglePosition(p.id, !p.isActive); location.reload(); }} className={`px-3 py-1 text-xs ${p.isActive?"bg-zinc-200 text-zinc-800 hover:bg-zinc-300":"bg-green-600"}`}>
+              <Button onClick={async()=>{ await togglePosition(p.id, !p.isActive); location.reload(); }} className={`px-3 py-1 text-xs ${p.isActive?"bg-zinc-200 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-300":"bg-green-600"}`}>
                 {p.isActive?"Disable":"Enable"}
               </Button>
             </div>

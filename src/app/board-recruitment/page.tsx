@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { boardPositions, settings } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { registrationStatus } from "@/lib/utils";
+import { registrationStatus, formatDate } from "@/lib/utils";
 import { BOARD_POSITIONS_FALLBACK, BOARD_OPEN_POSITION_NAMES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +41,7 @@ export default async function BoardRecruitmentPage() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board Recruitment 2026 — Open role</p>
           <h1 className="mt-2 text-[28px] font-semibold leading-none tracking-[-0.03em] text-zinc-900 antialiased sm:text-[32px] dark:text-zinc-100">
-            Member<span className="font-normal text-zinc-400">. Apply by Mon, 31 Aug.</span>
+            Member<span className="font-normal text-zinc-400">. Apply by {s.board_closes ? formatDate(s.board_closes) : "—"}.</span>
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
             <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-widest ${status==="OPEN" ? "border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-900" : "border-zinc-200 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"}`}>
@@ -55,7 +55,7 @@ export default async function BoardRecruitmentPage() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             {status==="OPEN"
               ? <Link href="/board-recruitment/apply" className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-900 px-6 text-sm font-semibold tracking-tight text-white antialiased hover:bg-black active:scale-[0.98] dark:bg-white dark:text-zinc-900">Apply as Member →</Link>
-              : <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-6 text-sm font-medium text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">Applications {status.replace("_"," ")}</span>}
+              : <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 px-6 text-sm font-medium text-zinc-500 dark:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900">Applications {status.replace("_"," ")}</span>}
             <Link href="/board-recruitment/status" className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">Check status</Link>
           </div>
         </div>

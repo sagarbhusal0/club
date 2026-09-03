@@ -16,7 +16,7 @@ export function Input({ className, ...p }: React.InputHTMLAttributes<HTMLInputEl
     <input
       {...p}
       className={cn(
-        "h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[15px] font-normal leading-none text-zinc-900 outline-none transition-[border-color,box-shadow,background-color] duration-150 ease-out placeholder:text-zinc-400 placeholder:font-normal focus:border-zinc-900 focus:bg-white focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500/10 md:h-10 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-white/10",
+        "h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[15px] font-normal leading-none text-zinc-900 outline-none transition-[border-color,box-shadow,background-color] duration-150 ease-out placeholder:text-zinc-400 placeholder:font-normal focus:border-zinc-900 dark:focus:border-zinc-300 focus:bg-white dark:focus:bg-zinc-900 focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 aria-[invalid=true]:focus:border-red-500 aria-[invalid=true]:focus:ring-red-500/10 md:h-10 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-100 dark:focus:ring-white/10",
         className
       )}
     />
@@ -27,7 +27,7 @@ export function Textarea({ className, ...p }: React.TextareaHTMLAttributes<HTMLT
     <textarea
       {...p}
       className={cn(
-        "w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-[15px] font-normal leading-6 text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 md:px-3 md:py-2.5 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+        "w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-[15px] font-normal leading-6 text-zinc-900 outline-none transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-zinc-400 focus:border-zinc-900 dark:focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 md:px-3 md:py-2.5 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500",
         className
       )}
     />
@@ -38,7 +38,7 @@ export function Select({ className, ...p }: React.SelectHTMLAttributes<HTMLSelec
     <select
       {...p}
       className={cn(
-        "h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[15px] font-normal text-zinc-900 outline-none focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 md:h-10 md:px-3 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100",
+        "h-11 w-full touch-manipulation rounded-xl border border-zinc-200 bg-white px-3.5 text-[15px] font-normal text-zinc-900 outline-none focus:border-zinc-900 dark:focus:border-zinc-300 focus:ring-4 focus:ring-zinc-900/[0.06] aria-[invalid=true]:border-red-300 md:h-10 md:px-3 md:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100",
         className
       )}
     />
