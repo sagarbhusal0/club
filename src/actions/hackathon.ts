@@ -1,21 +1,19 @@
 "use server";
 import { db } from "@/db";
 import { hackathonTeams, hackathonMembers, settings } from "@/db/schema";
-import { hackathonSchema, finalSubmissionSchema } from "@/lib/validation";
+import { buildHackathonSchema, buildFinalSubmissionSchema } from "@/lib/validation";
 import { rateLimit, LIMITS } from "@/lib/ratelimit";
 import { eq, sql, inArray } from "drizzle-orm";
-import { neon, Pool, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
+import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { drizzle as drizzleWs } from "drizzle-orm/neon-serverless";
 import * as schema from "@/db/schema";
 import { sendEmail } from "@/lib/email";
 import { hackathonRegisteredEmail, finalSubmissionEmail } from "@/lib/email-templates";
 import { registrationStatus } from "@/lib/utils";
+import { getDict, makeT, isLocale } from "@/lib/i18n";
+import { withTransaction } from "@/lib/db-tx";
 
-neonConfig.webSocketConstructor = ws;
-
-// Advisory lock id serializing hackathon registration (team-cap + numbering).
+// Advisory lock id serializing hackathon registration (team numbering).
 const REGISTRATION_LOCK_ID = 9203117;
 
 function getRawDb() {
@@ -25,41 +23,24 @@ function getRawDb() {
   return { sql: s, db: drizzle(s, { schema }) };
 }
 
-// neon-http does not support transactions; use the WebSocket driver for real
-// (atomic, concurrency-safe) transactions.
-type WsDb = ReturnType<typeof drizzleWs<typeof schema>>;
-type Tx = Parameters<Parameters<WsDb["transaction"]>[0]>[0];
-
-async function withTransaction<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL missing");
-  const pool = new Pool({ connectionString: url });
-  try {
-    const txDb = drizzleWs(pool, { schema });
-    return await txDb.transaction(fn);
-  } finally {
-    await pool.end();
-  }
-}
-
-export async function submitHackathonTeam(data: unknown, ip: string) {
+export async function submitHackathonTeam(data: unknown, ip: string, locale?: string) {
+  const loc = isLocale(locale) ? locale : "en";
+  const t = makeT(loc);
+  const m = getDict(loc).validation;
   if (!rateLimit(`hackathon:${ip}`, LIMITS.hackathonSubmit.limit, LIMITS.hackathonSubmit.windowMs)) return { error: LIMITS.hackathonSubmit.message };
-  const parsed = hackathonSchema.safeParse(data);
+  const parsed = buildHackathonSchema(m).safeParse(data);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data;
   const emailKey = d.members[0]?.email?.toLowerCase();
-  if (emailKey && !rateLimit(`hackathon:email:${emailKey}`, 2, 60_000)) return { error: "This email has reached the registration limit. Try again later." };
+  if (emailKey && !rateLimit(`hackathon:email:${emailKey}`, 2, 60_000)) return { error: t("validation.emailLimit") };
 
-  // 0 or missing setting = unlimited teams.
-  let maxTeams = 0;
   const rawDb = getRawDb().db;
 
   try {
     const settingsRows = await rawDb.select().from(settings);
     const s2 = Object.fromEntries(settingsRows.map(r => [r.key, r.value]));
     const st = registrationStatus(s2.hackathon_opens || "2026-01-01", s2.hackathon_closes || "2026-12-31");
-    if (st !== "OPEN") return { error: st === "COMING_SOON" ? "Hackathon registration has not opened yet." : "Hackathon registration is closed." };
-    maxTeams = Number(s2.hackathon_max_teams) || 0;
+    if (st !== "OPEN") return { error: st === "COMING_SOON" ? t("validation.notOpenYet") : t("validation.registrationClosed") };
   } catch {}
 
   const year = new Date().getFullYear();
@@ -67,14 +48,9 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
 
   try {
     return await withTransaction(async (tx) => {
-      // Serialize concurrent registrations so the team cap and team numbering
-      // cannot be bypassed by simultaneous submissions.
+      // Serialize concurrent registrations so team numbering stays sequential.
       await tx.execute(sql`SELECT pg_advisory_xact_lock(${REGISTRATION_LOCK_ID})`);
-      const [countRow] = await tx.select({ c: sql<number>`count(*)` }).from(hackathonTeams);
-      const teamCount = Number(countRow?.c ?? 0);
-      if (maxTeams > 0 && teamCount >= maxTeams) {
-        return { error: `Registration is full — the hackathon limit of ${maxTeams} teams has been reached.` };
-      }
+      // Registration is unlimited — the 9-team quota is enforced at approval time.
 
       const emails = d.members.map(m => m.email.toLowerCase());
       const ids = d.members.map(m => m.studentId.toLowerCase());
@@ -84,16 +60,16 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
       if (existingEmails.length) {
         const dupEmails = new Set(existingEmails.map(r => r.email.toLowerCase()));
         const dupInInput = emails.filter(e => dupEmails.has(e));
-        if (dupInInput.length) return { error: "This student is already registered in another team." };
+        if (dupInInput.length) return { error: t("validation.alreadyRegistered") };
       }
       // case-insensitive check via lower
       const allMembers = await tx.select().from(hackathonMembers);
       for (const m of allMembers) {
-        if (emails.includes(m.email.toLowerCase())) return { error: "This student is already registered in another team." };
-        if (ids.includes((m.studentId || "").toLowerCase())) return { error: "This student is already registered in another team." };
+        if (emails.includes(m.email.toLowerCase())) return { error: t("validation.alreadyRegistered") };
+        if (ids.includes((m.studentId || "").toLowerCase())) return { error: t("validation.alreadyRegistered") };
       }
       const allTeams = await tx.select().from(hackathonTeams);
-      if (allTeams.some(t => t.teamName.toLowerCase() === teamNameLower)) return { error: "Team name already taken. Please choose another." };
+      if (allTeams.some(x => x.teamName.toLowerCase() === teamNameLower)) return { error: t("validation.teamNameTaken") };
 
       const existing = await tx.execute(sql`SELECT team_number FROM hackathon_teams WHERE team_number LIKE ${prefix + "%"} ORDER BY team_number DESC LIMIT 1`) as unknown as { rows: { team_number: string }[] };
       let next = 1;
@@ -156,24 +132,27 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
     });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg.includes("already registered")) return { error: "This student is already registered in another team." };
-    if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("hm_email_unique") || msg.includes("hm_student_id_unique")) return { error: "This student is already registered in another team." };
-    if (msg.includes("team_name")) return { error: "Team name already taken. Please choose another." };
+    if (msg.includes("already registered")) return { error: t("validation.alreadyRegistered") };
+    if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("hm_email_unique") || msg.includes("hm_student_id_unique")) return { error: t("validation.alreadyRegistered") };
+    if (msg.includes("team_name")) return { error: t("validation.teamNameTaken") };
     console.error("[hackathon] submit failed", e);
-    return { error: "Registration failed. Please try again." };
+    return { error: t("validation.registrationFailed") };
   }
 }
 
-export async function submitFinal(teamNumber: string, data: unknown, ip: string) {
-  if (!rateLimit(`final:${ip}`, 5, 60_000)) return { error: "Too many submissions. Try again shortly." };
-  const parsed = finalSubmissionSchema.safeParse(data);
+export async function submitFinal(teamNumber: string, data: unknown, ip: string, locale?: string) {
+  const loc = isLocale(locale) ? locale : "en";
+  const t = makeT(loc);
+  const m = getDict(loc).validation;
+  if (!rateLimit(`final:${ip}`, 5, 60_000)) return { error: t("validation.tooManySubmissions") };
+  const parsed = buildFinalSubmissionSchema(m).safeParse(data);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data;
   const tn = teamNumber.trim().toUpperCase();
-  if (!tn) return { error: "Team ID required" };
+  if (!tn) return { error: t("validation.teamIdRequired") };
   const [team] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, tn)).limit(1);
-  if (!team) return { error: "Team not found" };
-  if (team.isFinalSubmitted) return { error: "Final submission is already locked. Contact an admin to unlock." };
+  if (!team) return { error: t("validation.teamNotFound") };
+  if (team.isFinalSubmitted) return { error: t("validation.alreadyLocked") };
   await db.update(hackathonTeams).set({
     repositoryUrl: d.repositoryUrl,
     documentationUrl: d.documentationUrl,

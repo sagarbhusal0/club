@@ -7,7 +7,9 @@ import { revalidatePath } from "next/cache";
 import { sendEmail, sendBulk } from "@/lib/email";
 import { boardStatusEmail, hackathonStatusEmail, broadcastEmail, ideaStatusEmail } from "@/lib/email-templates";
 import { rateLimit, LIMITS } from "@/lib/ratelimit";
-import { BOARD_STATUSES, HACKATHON_STATUSES, HACKATHON_IDEA_STATUSES } from "@/lib/constants";
+import { BOARD_STATUSES, HACKATHON_STATUSES, HACKATHON_IDEA_STATUSES, HACKATHON_MAX_TEAMS } from "@/lib/constants";
+import { withTransaction } from "@/lib/db-tx";
+import { sql } from "drizzle-orm";
 
 async function ensureAdmin() {
   const s = await requireAdmin();
@@ -35,6 +37,27 @@ export async function updateApplicationStatus(id: string, status: string, notes?
 export async function updateTeamStatus(id: string, status: string, notes?: string, notify = true) {
   await ensureAdmin();
   if (!(HACKATHON_STATUSES as readonly string[]).includes(status)) return { error: "Invalid status" };
+
+  // Approval quota: only `hackathon_max_teams` teams may occupy a competition slot
+  // (APPROVED or CHECKED_IN). Registration itself is unlimited.
+  if (status === "APPROVED" || status === "CHECKED_IN") {
+    const [current] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.id, id)).limit(1);
+    if (!current) return { error: "Team not found" };
+    const occupiesNow = current.status === "APPROVED" || current.status === "CHECKED_IN";
+    if (!occupiesNow) {
+      const rows = await db.select().from(settings);
+      const sMap = Object.fromEntries(rows.map(r => [r.key, r.value]));
+      const quota = Number(sMap.hackathon_max_teams) || HACKATHON_MAX_TEAMS;
+      const result = await withTransaction(async (tx) => {
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(9203118)`);
+        const [row] = await tx.select({ c: sql<number>`count(*)` }).from(hackathonTeams)
+          .where(sql`${hackathonTeams.status} IN ('APPROVED','CHECKED_IN') AND ${hackathonTeams.id} <> ${id}`);
+        return Number(row?.c ?? 0);
+      });
+      if (result >= quota) return { error: `Quota full — only ${quota} teams can be approved. Registration remains open, but no more teams can be selected.` };
+    }
+  }
+
   await db.update(hackathonTeams).set({ status, adminNotes: notes, updatedAt: new Date() }).where(eq(hackathonTeams.id, id));
   if (notify) {
     try {

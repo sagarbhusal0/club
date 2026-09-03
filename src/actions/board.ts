@@ -1,17 +1,21 @@
 "use server";
 import { db } from "@/db";
 import { boardApplications, boardPositions } from "@/db/schema";
-import { boardApplicationSchema } from "@/lib/validation";
+import { buildBoardApplicationSchema } from "@/lib/validation";
 import { rateLimit, LIMITS } from "@/lib/ratelimit";
 import { sql, eq } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 import { boardSubmittedEmail } from "@/lib/email-templates";
+import { getDict, makeT, isLocale } from "@/lib/i18n";
 
-export async function submitBoardApplication(data: unknown, ip: string) {
+export async function submitBoardApplication(data: unknown, ip: string, locale?: string) {
+  const loc = isLocale(locale) ? locale : "en";
+  const t = makeT(loc);
+  const m = getDict(loc).validation;
   const emailFromData = (data as { email?: string })?.email?.toLowerCase();
   if (!rateLimit(`board:${ip}`, LIMITS.boardSubmit.limit, LIMITS.boardSubmit.windowMs)) return { error: LIMITS.boardSubmit.message };
-  if (emailFromData && !rateLimit(`board:email:${emailFromData}`, 2, 60_000)) return { error:"This email has reached the submission limit. Please try again later." };
-  const parsed = boardApplicationSchema.safeParse(data);
+  if (emailFromData && !rateLimit(`board:email:${emailFromData}`, 2, 60_000)) return { error: t("validation.tooManySubmissions") };
+  const parsed = buildBoardApplicationSchema(m).safeParse(data);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data as unknown as Record<string,string> & { confirm:boolean };
   if (d.firstChoicePositionId?.startsWith("fallback-")) {
@@ -96,8 +100,8 @@ export async function submitBoardApplication(data: unknown, ip: string) {
     const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : "";
     const detail = (msg.includes("Failed query") && causeMsg) ? causeMsg : msg;
     console.error("[board] submit failed:", detail, e);
-    if (detail.includes("duplicate")||detail.includes("unique")) return { error:"Duplicate submission detected." };
-    if (detail.includes("null value")||detail.includes("not-null")) return { error:"Submission failed: a required field was empty. Please refresh and try again." };
-    return { error: detail ? `Submission failed: ${detail}` : "Something went wrong. Please try again." };
+    if (detail.includes("duplicate")||detail.includes("unique")) return { error: t("validation.duplicateSubmission") };
+    if (detail.includes("null value")||detail.includes("not-null")) return { error: t("validation.requiredFieldEmpty") };
+    return { error: t("validation.submissionFailed") };
   }
 }

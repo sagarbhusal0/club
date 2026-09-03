@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { statusLabel } from "@/lib/i18n";
 
 export function Button({ className, ...p }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -68,7 +69,7 @@ export function FieldError({ children }: { children: React.ReactNode }) {
     </p>
   );
 }
-export function Badge({ status }: { status: string }) {
+export function Badge({ status, locale }: { status: string; locale?: "en" | "ne" }) {
   const m: Record<string, string> = {
     SUBMITTED:
       "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900",
@@ -95,7 +96,7 @@ export function Badge({ status }: { status: string }) {
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.08em] ring-1 ring-inset ${m[status] || "bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700"}`}
     >
-      {status.replace(/_/g, " ")}
+      {statusLabel(locale ?? "en", status)}
     </span>
   );
 }

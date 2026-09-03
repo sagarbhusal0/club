@@ -3,17 +3,19 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeProvider";
-
-const links = [
-  { href: "/about", label: "About" },
-  { href: "/board-recruitment", label: "Board" },
-  { href: "/hackathon", label: "Hackathon" },
-  { href: "/dashboard", label: "My Applications" },
-];
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useT } from "./LocaleProvider";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { t } = useT();
+  const links = [
+    { href: "/about", label: t("nav.about") },
+    { href: "/board-recruitment", label: t("nav.board") },
+    { href: "/hackathon", label: t("nav.hackathon") },
+    { href: "/dashboard", label: t("nav.dashboard") },
+  ];
   // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: close the mobile menu on navigation
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
@@ -51,20 +53,19 @@ export default function Navbar() {
             );
           })}
           <span className="mx-2 hidden h-4 w-px bg-zinc-200 dark:bg-zinc-800 lg:block" />
+          <LanguageSwitcher />
           <ThemeToggle />
           <Link href="/login" className="ml-1 inline-flex min-h-9 items-center justify-center rounded-full bg-zinc-900 px-4 text-sm font-semibold tracking-tight text-white antialiased transition-colors hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100">
-            Login
+            {t("nav.login")}
           </Link>
         </nav>
 
         <div className="flex items-center gap-1.5 md:hidden">
+          <LanguageSwitcher />
           <ThemeToggle />
-          <Link href="/login" className="inline-flex min-h-9 items-center justify-center rounded-full border border-zinc-200 bg-white px-3.5 text-sm font-semibold text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
-            Login
-          </Link>
           <button
             type="button"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
@@ -87,12 +88,13 @@ export default function Navbar() {
                 {l.label}
               </Link>
             ))}
-            <Link href="/board-recruitment/status" onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-3 text-sm font-medium text-zinc-500 active:bg-zinc-100 dark:text-zinc-400">Check Board Status →</Link>
-            <Link href="/hackathon/status" onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-3 text-sm font-medium text-zinc-500 active:bg-zinc-100 dark:text-zinc-400">Check Hackathon Status →</Link>
+            <Link href="/login" onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-3 text-[15px] font-semibold text-zinc-900 active:bg-zinc-100 dark:text-zinc-100 dark:active:bg-zinc-900">{t("nav.login")}</Link>
+            <Link href="/board-recruitment/status" onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-3 text-sm font-medium text-zinc-500 active:bg-zinc-100 dark:text-zinc-400">{t("nav.checkBoardStatus")}</Link>
+            <Link href="/hackathon/status" onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-3 text-sm font-medium text-zinc-500 active:bg-zinc-100 dark:text-zinc-400">{t("nav.checkHackathonStatus")}</Link>
           </div>
         </nav>
       </div>
-      {open && <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="fixed inset-0 top-[57px] z-30 bg-zinc-900/20 md:hidden" />}
+      {open && <button type="button" aria-label={t("nav.closeMenu")} onClick={() => setOpen(false)} className="fixed inset-0 top-[57px] z-30 bg-zinc-900/20 md:hidden" />}
     </header>
   );
 }
