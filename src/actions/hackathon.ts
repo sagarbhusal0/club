@@ -134,17 +134,20 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
       }
 
       try {
-        const emailData = hackathonRegisteredEmail({
-          teamNumber: team.teamNumber,
-          teamName: team.teamName,
-          projectTitle: team.projectTitle,
-          category: team.category,
-          description: team.description,
-          members: d.members.map(m => ({ fullName: m.fullName, email: m.email, role: m.role + (m.isLeader ? " (Leader)" : ""), studentId: m.studentId })),
-        });
-        const recipientEmails = [...new Set(d.members.map(m => m.email.toLowerCase()))];
-        for (const to of recipientEmails) {
-          try { await sendEmail({ to, subject: emailData.subject, html: emailData.html }); }
+        const sentTo = new Set<string>();
+        for (const m of d.members) {
+          const to = m.email.toLowerCase();
+          if (sentTo.has(to)) continue;
+          sentTo.add(to);
+          const personalized = hackathonRegisteredEmail({
+            teamNumber: team.teamNumber,
+            teamName: team.teamName,
+            projectTitle: team.projectTitle,
+            category: team.category,
+            description: team.description,
+            members: d.members.map(mm => ({ fullName: mm.fullName, email: mm.email, role: mm.role + (mm.isLeader ? " (Leader)" : ""), studentId: mm.studentId })),
+          }, m.fullName);
+          try { await sendEmail({ to, subject: personalized.subject, html: personalized.html }); }
           catch (e) { console.error("[email] hackathon confirmation failed", to, e); }
         }
       } catch (e) { console.error("[email] hackathon confirmation failed", e); }
