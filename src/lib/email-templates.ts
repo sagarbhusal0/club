@@ -40,10 +40,10 @@ export function boardStatusEmail(a: { applicationNumber:string; fullName:string;
   return { subject, html: wrap(`Status: ${a.status.replace(/_/g," ")}`, body) };
 }
 
-export function hackathonRegisteredEmail(t: { teamNumber:string; teamName:string; projectTitle:string; category:string; description:string; members:{fullName:string;email:string;role:string;studentId:string}[] }) {
+export function hackathonRegisteredEmail(t: { teamNumber:string; teamName:string; projectTitle:string; category:string; description:string; members:{fullName:string;email:string;role:string;studentId:string}[] }, recipientName?: string) {
   const subject = `Hackathon Registration Confirmed — ${t.teamNumber}`;
   const membersHtml = t.members.map((m,i)=>`${i===0?"<strong>":""}${m.fullName} — ${m.role} (${m.studentId}) — ${m.email}${i===0?" (Leader)</strong>":""}`).join("<br/>");
-  const body = `<p>Hi ${t.members[0]?.fullName || "Team Leader"},</p><p>Your hackathon team is registered and under review.</p>
+  const body = `<p>Hi ${recipientName || t.members[0]?.fullName || "there"},</p><p>Your hackathon team is registered and under review.</p>
 <p><strong>Team ID: ${t.teamNumber}</strong> · Team: ${t.teamName}</p>
 ${kvTable([["Project",t.projectTitle],["Category",t.category]])}
 <div style="margin-top:8px;padding:12px;background:#f4f4f5;border-radius:8px"><strong>Description</strong><br/>${t.description}</div>
