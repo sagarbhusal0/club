@@ -13,6 +13,7 @@ export default async function RegisterPage() {
   const cats = categories.length ? categories : fallback;
   let count = 0;
   try { const [r] = await db.select({ c: sql<number>`count(*)` }).from(hackathonTeams); count = Number(r.c); } catch {}
+  const maxTeams = Number(s.hackathon_max_teams) || 0;
   if (status !== "OPEN") {
     return (
       <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
@@ -29,10 +30,10 @@ export default async function RegisterPage() {
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Register Your Team</h1>
-        <span className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">{count} teams registered</span>
+        <span className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white dark:bg-zinc-100 dark:text-zinc-900">{maxTeams > 0 ? `${count} / ${maxTeams} teams · ${count * 3} / ${maxTeams * 3} participants` : `Unlimited teams · ${count} registered · ${count * 3} participants`}</span>
       </div>
-      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">School Management theme · Exactly 3 members · One Team Leader (laptop owner) · Project built from scratch.</p>
-      <div className="mt-6"><HackathonForm categories={cats} /></div>
+      <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">School Management theme · {maxTeams > 0 ? `Maximum ${maxTeams} teams (${maxTeams * 3} participants) · ` : "Unlimited teams · "}Exactly 3 members · One Team Leader (laptop owner) · Project built from scratch.</p>
+      <div className="mt-6"><HackathonForm categories={cats} maxTeams={maxTeams} /></div>
     </div>
   );
 }

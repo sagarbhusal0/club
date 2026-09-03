@@ -4,18 +4,42 @@ import { hackathonTeams, hackathonMembers, settings } from "@/db/schema";
 import { hackathonSchema, finalSubmissionSchema } from "@/lib/validation";
 import { rateLimit, LIMITS } from "@/lib/ratelimit";
 import { eq, sql, inArray } from "drizzle-orm";
-import { neon } from "@neondatabase/serverless";
+import { neon, Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzleWs } from "drizzle-orm/neon-serverless";
 import * as schema from "@/db/schema";
 import { sendEmail } from "@/lib/email";
 import { hackathonRegisteredEmail, finalSubmissionEmail } from "@/lib/email-templates";
 import { registrationStatus } from "@/lib/utils";
+
+neonConfig.webSocketConstructor = ws;
+
+// Advisory lock id serializing hackathon registration (team-cap + numbering).
+const REGISTRATION_LOCK_ID = 9203117;
 
 function getRawDb() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL missing");
   const s = neon(url);
   return { sql: s, db: drizzle(s, { schema }) };
+}
+
+// neon-http does not support transactions; use the WebSocket driver for real
+// (atomic, concurrency-safe) transactions.
+type WsDb = ReturnType<typeof drizzleWs<typeof schema>>;
+type Tx = Parameters<Parameters<WsDb["transaction"]>[0]>[0];
+
+async function withTransaction<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL missing");
+  const pool = new Pool({ connectionString: url });
+  try {
+    const txDb = drizzleWs(pool, { schema });
+    return await txDb.transaction(fn);
+  } finally {
+    await pool.end();
+  }
 }
 
 export async function submitHackathonTeam(data: unknown, ip: string) {
@@ -26,20 +50,32 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
   const emailKey = d.members[0]?.email?.toLowerCase();
   if (emailKey && !rateLimit(`hackathon:email:${emailKey}`, 2, 60_000)) return { error: "This email has reached the registration limit. Try again later." };
 
-  const { sql: rawSql, db: rawDb } = getRawDb();
+  // 0 or missing setting = unlimited teams.
+  let maxTeams = 0;
+  const rawDb = getRawDb().db;
 
   try {
     const settingsRows = await rawDb.select().from(settings);
-    const s = Object.fromEntries(settingsRows.map(r => [r.key, r.value]));
-    const st = registrationStatus(s.hackathon_opens || "2026-01-01", s.hackathon_closes || "2026-12-31");
+    const s2 = Object.fromEntries(settingsRows.map(r => [r.key, r.value]));
+    const st = registrationStatus(s2.hackathon_opens || "2026-01-01", s2.hackathon_closes || "2026-12-31");
     if (st !== "OPEN") return { error: st === "COMING_SOON" ? "Hackathon registration has not opened yet." : "Hackathon registration is closed." };
+    maxTeams = Number(s2.hackathon_max_teams) || 0;
   } catch {}
 
   const year = new Date().getFullYear();
   const prefix = `ICT-HACK-${year}-`;
 
   try {
-    return await rawDb.transaction(async (tx) => {
+    return await withTransaction(async (tx) => {
+      // Serialize concurrent registrations so the team cap and team numbering
+      // cannot be bypassed by simultaneous submissions.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(${REGISTRATION_LOCK_ID})`);
+      const [countRow] = await tx.select({ c: sql<number>`count(*)` }).from(hackathonTeams);
+      const teamCount = Number(countRow?.c ?? 0);
+      if (maxTeams > 0 && teamCount >= maxTeams) {
+        return { error: `Registration is full — the hackathon limit of ${maxTeams} teams has been reached.` };
+      }
+
       const emails = d.members.map(m => m.email.toLowerCase());
       const ids = d.members.map(m => m.studentId.toLowerCase());
       const teamNameLower = d.teamName.toLowerCase();
@@ -106,7 +142,11 @@ export async function submitHackathonTeam(data: unknown, ip: string) {
           description: team.description,
           members: d.members.map(m => ({ fullName: m.fullName, email: m.email, role: m.role + (m.isLeader ? " (Leader)" : ""), studentId: m.studentId })),
         });
-        await sendEmail({ to: d.members[0].email, subject: emailData.subject, html: emailData.html });
+        const recipientEmails = [...new Set(d.members.map(m => m.email.toLowerCase()))];
+        for (const to of recipientEmails) {
+          try { await sendEmail({ to, subject: emailData.subject, html: emailData.html }); }
+          catch (e) { console.error("[email] hackathon confirmation failed", to, e); }
+        }
       } catch (e) { console.error("[email] hackathon confirmation failed", e); }
 
       return { success: true, teamNumber: team.teamNumber, teamId: team.id } as const;
@@ -135,6 +175,7 @@ export async function submitFinal(teamNumber: string, data: unknown, ip: string)
     repositoryUrl: d.repositoryUrl,
     documentationUrl: d.documentationUrl,
     finalDemoUrl: d.finalDemoUrl || null,
+    finalDescription: d.finalDescription || null,
     aiToolsUsed: d.aiToolsUsed || null,
     originalWorkConfirmed: true,
     isFinalSubmitted: true,
@@ -157,6 +198,10 @@ export async function unlockFinalSubmission(teamId: string) {
   const { requireAdmin } = await import("@/lib/auth");
   const s = await requireAdmin();
   if (!s) return { error: "Unauthorized" };
-  await db.update(hackathonTeams).set({ isFinalSubmitted: false, finalSubmittedAt: null, updatedAt: new Date() }).where(eq(hackathonTeams.id, teamId));
+  const [team] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.id, teamId)).limit(1);
+  if (!team) return { error: "Team not found" };
+  // Restore an editable state: back to APPROVED (or REGISTERED if not yet approved).
+  const editableStatus = team.status === "FINAL_SUBMITTED" ? (team.ideaStatus === "APPROVED" ? "APPROVED" : "REGISTERED") : team.status;
+  await db.update(hackathonTeams).set({ isFinalSubmitted: false, finalSubmittedAt: null, status: editableStatus, updatedAt: new Date() }).where(eq(hackathonTeams.id, teamId));
   return { success: true };
 }

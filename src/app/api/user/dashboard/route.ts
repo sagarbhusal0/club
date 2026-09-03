@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get("q") || req.nextUrl.searchParams.get("applicationId") || "").trim().toUpperCase();
 
   let applications: typeof boardApplications.$inferSelect[] = [];
-  let teams: { teamNumber:string; teamName:string; projectTitle:string; category:string; status:string; adminNotes: string | null; members:{fullName:string;role:string}[] }[] = [];
+  const teams: { teamNumber:string; teamName:string; projectTitle:string; category:string; status:string; adminNotes: string | null; members:{fullName:string;role:string}[] }[] = [];
 
   if (email && email.includes("@")) {
     applications = await db.select().from(boardApplications).where(eq(boardApplications.email, email));

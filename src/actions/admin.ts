@@ -5,8 +5,9 @@ import { requireAdmin } from "@/lib/auth";
 import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendEmail, sendBulk } from "@/lib/email";
-import { boardStatusEmail, hackathonStatusEmail, broadcastEmail } from "@/lib/email-templates";
+import { boardStatusEmail, hackathonStatusEmail, broadcastEmail, ideaStatusEmail } from "@/lib/email-templates";
 import { rateLimit, LIMITS } from "@/lib/ratelimit";
+import { BOARD_STATUSES, HACKATHON_STATUSES, HACKATHON_IDEA_STATUSES } from "@/lib/constants";
 
 async function ensureAdmin() {
   const s = await requireAdmin();
@@ -16,6 +17,7 @@ async function ensureAdmin() {
 
 export async function updateApplicationStatus(id: string, status: string, notes?: string, notify = true) {
   await ensureAdmin();
+  if (!(BOARD_STATUSES as readonly string[]).includes(status)) return { error: "Invalid status" };
   await db.update(boardApplications).set({ status, adminNotes: notes, updatedAt: new Date() }).where(eq(boardApplications.id, id));
   if (notify) {
     try {
@@ -32,6 +34,7 @@ export async function updateApplicationStatus(id: string, status: string, notes?
 
 export async function updateTeamStatus(id: string, status: string, notes?: string, notify = true) {
   await ensureAdmin();
+  if (!(HACKATHON_STATUSES as readonly string[]).includes(status)) return { error: "Invalid status" };
   await db.update(hackathonTeams).set({ status, adminNotes: notes, updatedAt: new Date() }).where(eq(hackathonTeams.id, id));
   if (notify) {
     try {
@@ -101,7 +104,20 @@ export async function updateSettings(data: Record<string,string>) {
 
 export async function updateIdeaStatus(id: string, ideaStatus: string, notes?: string) {
   await ensureAdmin();
-  await db.update(hackathonTeams).set({ ideaStatus, adminNotes: notes, updatedAt: new Date() }).where(eq(hackathonTeams.id, id));
+  if (!(HACKATHON_IDEA_STATUSES as readonly string[]).includes(ideaStatus)) return { error: "Invalid idea status" };
+  await db.update(hackathonTeams).set({ ideaStatus, ideaReviewNotes: notes ?? null, updatedAt: new Date() }).where(eq(hackathonTeams.id, id));
+  // Notify the team leader only.
+  try {
+    const [team] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.id, id)).limit(1);
+    if (team) {
+      const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, id));
+      const leader = members.find(m => m.isLeader) || members[0];
+      if (leader) {
+        const e = ideaStatusEmail({ teamNumber: team.teamNumber, teamName: team.teamName, ideaStatus, adminNotes: notes });
+        await sendEmail({ to: leader.email, subject: e.subject, html: e.html });
+      }
+    }
+  } catch (err) { console.error("[email] idea status notify failed", err); }
   revalidatePath("/admin/teams");
   return { success:true };
 }

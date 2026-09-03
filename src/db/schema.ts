@@ -85,6 +85,8 @@ export const hackathonTeams = pgTable(
     technologyStack: text("technology_stack"),
     projectIdeaSummary: text("project_idea_summary"),
     ideaStatus: varchar("idea_status", { length: 20 }).notNull().default("PENDING"),
+    ideaReviewNotes: text("idea_review_notes"),
+    finalDescription: text("final_description"),
     finalDemoUrl: text("final_demo_url"),
     repositoryUrl: text("repository_url"),
     documentationUrl: text("documentation_url"),

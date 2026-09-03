@@ -14,6 +14,7 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: close the mobile menu on navigation
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     if (!open) return;

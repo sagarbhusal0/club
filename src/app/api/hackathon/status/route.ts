@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!teamNumber && !email) return NextResponse.json({ error:"Team ID or email required" },{status:400});
   const toJson = (t: typeof hackathonTeams.$inferSelect) => ({
     teamName: t.teamName, projectTitle: t.projectTitle, status: t.status, teamNumber: t.teamNumber,
-    adminNotes: t.adminNotes, ideaStatus: t.ideaStatus, isFinalSubmitted: t.isFinalSubmitted, finalSubmittedAt: t.finalSubmittedAt,
+    adminNotes: t.adminNotes, ideaStatus: t.ideaStatus, ideaReviewNotes: t.ideaReviewNotes, isFinalSubmitted: t.isFinalSubmitted, finalSubmittedAt: t.finalSubmittedAt,
   });
   if (teamNumber && email) {
     const [team] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, teamNumber)).limit(1);

@@ -29,7 +29,7 @@ export default async function HackathonPage() {
             <div><p className="font-semibold text-zinc-900 dark:text-zinc-100">General</p><ul className="mt-1 list-disc pl-5"><li>Theme is School Management</li><li>Unlimited teams · Exactly {HACKATHON_MEMBERS_PER_TEAM} members per team</li><li>Any class may participate · One team per participant · One Team Leader per team</li></ul></div>
             <div><p className="font-semibold text-zinc-900 dark:text-zinc-100">Project</p><ul className="mt-1 list-disc pl-5"><li>Must relate to School Management · Built from scratch during the event</li><li>Every team&apos;s project must be unique · No copying ideas or code</li><li>Pre-built projects not allowed</li></ul></div>
             <div><p className="font-semibold text-zinc-900 dark:text-zinc-100">Team & Laptop</p><ul className="mt-1 list-disc pl-5"><li>All 3 members must contribute (research, design, testing, docs, presentation)</li><li>Only the Team Leader may bring/use a laptop for the project</li></ul></div>
-            <div><p className="font-semibold text-zinc-900 dark:text-zinc-100">Time · AI · Documentation</p><ul className="mt-1 list-disc pl-5"><li>4 hours working · 30 min break · 4h 30m total</li><li>AI tools allowed — but you must understand your project; judges may quiz any member</li><li>Documentation mandatory</li></ul></div>
+            <div><p className="font-semibold text-zinc-900 dark:text-zinc-100">Time · AI · Documentation</p><ul className="mt-1 list-disc pl-5"><li>{s.hackathon_working_hours || "4 hours"} working · {s.hackathon_break_minutes || 30} min break</li><li>AI tools allowed — but you must understand your project; judges may quiz any member</li><li>Documentation mandatory</li></ul></div>
           </div>
         </div>
 

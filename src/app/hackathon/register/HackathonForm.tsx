@@ -17,7 +17,7 @@ type FormData = {
 
 const emptyMember = (leader=false) => ({ fullName:"", email:"", phone:"", grade:"", section:"", studentId:"", role: leader ? "Team Leader" : "Developer", githubUrl:"", isLeader: leader });
 
-export default function HackathonForm({ categories }: { categories: string[] }) {
+export default function HackathonForm({ categories, maxTeams = 0 }: { categories: string[]; maxTeams?: number }) {
   const [step,setStep]=useState(1);
   const [done,setDone]=useState<{teamNumber:string;teamName:string}|null>(null);
   const [err,setErr]=useState(""); const [submitting,setSubmitting]=useState(false);
@@ -81,7 +81,7 @@ export default function HackathonForm({ categories }: { categories: string[] }) 
       {step===1 && (
         <Card className="space-y-4" style={{ animation:"fadeUp 220ms var(--ease-out) both" }}>
           <h3 className="text-[15px] font-bold sm:text-base">Team & Project — School Management Theme</h3>
-          <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">Unlimited teams · 3 members per team · One student per team only · Build from scratch during the event.</p>
+          <p className="text-xs leading-5 text-zinc-500 dark:text-zinc-400">{maxTeams > 0 ? `Maximum ${maxTeams} teams (${maxTeams * 3} participants) · ` : "Unlimited teams · "}3 members per team · One student per team only · Build from scratch during the event.</p>
           <div><Label htmlFor="teamName">Team name *</Label><Input id="teamName" autoComplete="off" enterKeyHint="next" {...register("teamName")} />{e.teamName && <p className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">{e.teamName.message}</p>}</div>
           <div><Label htmlFor="projectTitle">Project title *</Label><Input id="projectTitle" enterKeyHint="next" {...register("projectTitle")} />{e.projectTitle && <p className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">{e.projectTitle.message}</p>}</div>
           <div><Label htmlFor="category">Category *</Label>

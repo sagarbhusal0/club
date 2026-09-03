@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { registrationStatus, hackathonStatus } from "@/lib/utils";
+import { registrationStatus, hackathonStatus, formatDate } from "@/lib/utils";
 
 async function getSettings() {
   try {
@@ -18,6 +18,8 @@ export default async function Home() {
   const s = await getSettings();
   const boardStatus = registrationStatus(s.board_opens || "2026-01-01", s.board_closes || "2026-12-31");
   const hackStatus = hackathonStatus(s.hackathon_opens || "2026-01-01", s.hackathon_closes || "2026-12-31");
+  const boardDeadline = s.board_closes ? formatDate(s.board_closes) : "—";
+  const hackCloses = s.hackathon_closes ? formatDate(s.hackathon_closes) : "—";
 
   return (
     <div className="bg-[#f8f7f5] dark:bg-zinc-950">
@@ -51,12 +53,21 @@ export default async function Home() {
                 className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
                 style={{ animation: "fadeUp 420ms var(--ease-out) 180ms both" }}
               >
-                <Link
-                  href="/board-recruitment"
-                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-900 px-6 text-sm font-semibold tracking-tight text-white antialiased transition-[transform,background-color] duration-150 ease-out hover:bg-black active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
-                >
-                  Apply as Member — deadline Mon 31 Aug
-                </Link>
+                {boardStatus === "OPEN" ? (
+                  <Link
+                    href="/board-recruitment"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-zinc-900 px-6 text-sm font-semibold tracking-tight text-white antialiased transition-[transform,background-color] duration-150 ease-out hover:bg-black active:scale-[0.98] dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                  >
+                    Apply as Member — deadline {boardDeadline}
+                  </Link>
+                ) : (
+                  <Link
+                    href="/board-recruitment/status"
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-semibold text-zinc-900 transition-[transform,background-color,border-color] duration-150 ease-out hover:border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    Member applications {boardStatus.replace("_", " ").toLowerCase()}
+                  </Link>
+                )}
                 {hackStatus === "OPEN" ? (
                   <Link
                     href="/hackathon"
@@ -87,19 +98,19 @@ export default async function Home() {
                   Hackathon: {hackStatus.replace("_", " ")}
                 </span>
                 <span className="hidden text-zinc-300 dark:text-zinc-700 sm:inline">·</span>
-                <span className="text-zinc-500 dark:text-zinc-400">Deadline Mon, 31 Aug — 11:59 PM</span>
+                <span className="text-zinc-500 dark:text-zinc-400">Board deadline {boardDeadline} — 11:59 PM · Hackathon registration till {hackCloses}</span>
               </div>
             </div>
 
             <div className="grid gap-3" style={{ animation: "fadeUp 420ms var(--ease-out) 260ms both" }}>
-              <div className="rounded-[20px] border border-zinc-200 bg-[#fcfcfb] p-5 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className={`rounded-[20px] border p-5 ${boardStatus === "OPEN" ? "border-zinc-200 bg-[#fcfcfb] dark:border-zinc-800 dark:bg-zinc-900" : "border-zinc-200 bg-[#fcfcfb] opacity-70 dark:border-zinc-800 dark:bg-zinc-900"}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Now open</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">{boardStatus === "OPEN" ? "Now open" : "Applications closed"}</p>
                     <p className="mt-1 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Member — General membership</p>
                     <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">One role. Direct application. No second choice.</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-zinc-900 px-2.5 py-1 text-xs font-semibold tracking-widest text-white dark:bg-white dark:text-zinc-900">OPEN</span>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold tracking-widest ${boardStatus === "OPEN" ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900" : "bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"}`}>{boardStatus}</span>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
                   <div>
@@ -148,7 +159,7 @@ export default async function Home() {
             >
               <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Board Recruitment</p>
               <p className="mt-2 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Member — 1 position</p>
-              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">Apply till Mon 31 Aug. Takes ~5 minutes.</p>
+              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">Apply till {boardDeadline}. Takes ~5 minutes.</p>
               <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 View details <span aria-hidden className="transition-transform duration-150 ease-out group-hover:translate-x-0.5">→</span>
               </span>
@@ -158,8 +169,8 @@ export default async function Home() {
               className="group rounded-[20px] border border-zinc-200 bg-white p-5 transition-[transform,border-color,box-shadow] duration-200 ease-out hover:border-zinc-300 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
             >
               <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon</p>
-              <p className="mt-2 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Teams of 4</p>
-              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">Registration currently closed. Browse status.</p>
+              <p className="mt-2 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Teams of 3</p>
+              <p className="mt-1 text-sm leading-5 text-zinc-500 dark:text-zinc-400">{hackStatus === "OPEN" ? `Registration open — till ${hackCloses}.` : hackStatus === "COMING_SOON" ? "Registration opening soon." : "Registration currently closed. Browse status."}</p>
               <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 Explore <span aria-hidden className="transition-transform duration-150 ease-out group-hover:translate-x-0.5">→</span>
               </span>
@@ -202,9 +213,9 @@ export default async function Home() {
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100">{s.board_closes || "2026-08-31"} · 11:59 PM</span>
               </p>
             </div>
-            <p className="mt-3 rounded-full bg-zinc-900 px-3 py-1.5 text-center text-xs font-semibold text-white dark:bg-white dark:text-zinc-900">Mon, 31 Aug</p>
+            <p className="mt-3 rounded-full bg-zinc-900 px-3 py-1.5 text-center text-xs font-semibold text-white dark:bg-white dark:text-zinc-900">{boardDeadline}</p>
           </div>
-          <div className="rounded-[16px] border border-zinc-200 bg-white p-5 opacity-70 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className={`rounded-[16px] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 ${hackStatus === "OPEN" ? "" : "opacity-70"}`}>
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Reg</p>
             <div className="mt-3 space-y-1 text-sm">
               <p className="flex justify-between gap-4">
@@ -216,7 +227,7 @@ export default async function Home() {
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">{s.hackathon_closes || "—"}</span>
               </p>
             </div>
-            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Currently closed</p>
+            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Currently {hackStatus === "OPEN" ? "open" : hackStatus === "COMING_SOON" ? "coming soon" : "closed"}</p>
           </div>
           <div className="rounded-[16px] border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Hackathon Day</p>

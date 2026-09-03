@@ -1,7 +1,10 @@
 import { z } from "zod";
 
-const urlOptional = z.string().url("Enter a valid URL").optional().or(z.literal(""));
-const urlRequired = z.string().url("Enter a valid URL").min(1, "Required");
+const isHttpUrl = (v: string) => {
+  try { return ["http:", "https:"].includes(new URL(v).protocol); } catch { return false; }
+};
+const urlOptional = z.string().url("Enter a valid URL").refine(isHttpUrl, "Use an http(s) URL").optional().or(z.literal(""));
+const urlRequired = z.string().min(1, "Required").url("Enter a valid URL").refine(isHttpUrl, "Use an http(s) URL");
 
 export const boardApplicationSchema = z.object({
   fullName: z.string().min(2,"Name required").max(200),

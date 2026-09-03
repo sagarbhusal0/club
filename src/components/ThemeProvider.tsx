@@ -9,6 +9,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("theme") as Theme | null;
     const t = saved || "dark";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: restore persisted theme after hydration
     setTheme(t);
     document.documentElement.classList.toggle("dark", t === "dark");
   }, []);
