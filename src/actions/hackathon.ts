@@ -140,11 +140,11 @@ export async function submitHackathonTeam(data: unknown, ip: string, locale?: st
   }
 }
 
-export async function submitFinal(teamNumber: string, data: unknown, ip: string, locale?: string) {
+export async function submitFinal(teamNumber: string, data: unknown, ip: string, locale?: string, requesterEmail?: string) {
   const loc = isLocale(locale) ? locale : "en";
   const t = makeT(loc);
   const m = getDict(loc).validation;
-  if (!rateLimit(`final:${ip}`, 5, 60_000)) return { error: t("validation.tooManySubmissions") };
+  if (!rateLimit(`final:${ip}`, LIMITS.finalSubmission.limit, LIMITS.finalSubmission.windowMs)) return { error: t("validation.tooManySubmissions") };
   const parsed = buildFinalSubmissionSchema(m).safeParse(data);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const d = parsed.data;
@@ -152,6 +152,10 @@ export async function submitFinal(teamNumber: string, data: unknown, ip: string,
   if (!tn) return { error: t("validation.teamIdRequired") };
   const [team] = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, tn)).limit(1);
   if (!team) return { error: t("validation.teamNotFound") };
+  if (requesterEmail) {
+    const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, team.id));
+    if (!members.some(mm=>mm.email.toLowerCase()===requesterEmail.trim().toLowerCase())) return { error: t("validation.notInTeam") || "You are not a member of this team" };
+  }
   if (team.isFinalSubmitted) return { error: t("validation.alreadyLocked") };
   await db.update(hackathonTeams).set({
     repositoryUrl: d.repositoryUrl,

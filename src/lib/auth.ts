@@ -50,11 +50,14 @@ export async function setAuthCookie(token: string) {
   c.set(COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV==="production", sameSite:"lax", maxAge: 60*60*24*7, path:"/" });
 }
 export async function clearAuthCookie() {
-  const c = await cookies(); c.delete(COOKIE);
+  const c = await cookies();
+  c.delete(COOKIE);
+  c.set(COOKIE, "", { httpOnly: true, secure: process.env.NODE_ENV==="production", sameSite:"lax", maxAge: 0, path:"/" });
 }
 
 export async function validateLogin(email: string, password: string) {
-  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const normalized = email.trim().toLowerCase();
+  const [user] = await db.select().from(users).where(eq(users.email, normalized)).limit(1);
   if (!user) return null;
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) return null;

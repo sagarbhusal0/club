@@ -34,13 +34,8 @@ export async function GET(req: NextRequest) {
       }
     }
   } else if (q) {
-    const appById = await db.select().from(boardApplications).where(eq(boardApplications.applicationNumber, q));
-    applications = appById;
-    const teamById = await db.select().from(hackathonTeams).where(eq(hackathonTeams.teamNumber, q)).limit(1);
-    for (const t of teamById) {
-      const members = await db.select().from(hackathonMembers).where(eq(hackathonMembers.teamId, t.id));
-      teams.push({ teamNumber: t.teamNumber, teamName: t.teamName, projectTitle: t.projectTitle, category: t.category, status: t.status, adminNotes: t.adminNotes, members: members.map(m=>({fullName:m.fullName,role:m.role})) });
-    }
+    // ID-only without email is not allowed — prevents enumeration via predictable ICT-*-YYYY-XXXX
+    return NextResponse.json({ error:"Email required to look up by ID" },{status:400});
   } else {
     return NextResponse.json({ error:"Enter your email or Application/Team ID" },{status:400});
   }
