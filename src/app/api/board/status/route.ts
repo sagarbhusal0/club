@@ -16,8 +16,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ applicationNumber:app.applicationNumber, fullName:app.fullName, status:app.status, adminNotes: app.adminNotes });
   }
   if (id) {
-    const [app] = await db.select().from(boardApplications).where(eq(boardApplications.applicationNumber,id)).limit(1);
-    if (!app) return NextResponse.json({ error:"No application found for that ID" },{status:404});
+    if (!email) return NextResponse.json({ error:"Email required with Application ID to verify ownership" },{status:400});
+    const [app] = await db.select().from(boardApplications).where(and(eq(boardApplications.applicationNumber,id),eq(boardApplications.email,email))).limit(1);
+    if (!app) return NextResponse.json({ error:"No matching application found for that ID and email" },{status:404});
     return NextResponse.json({ applicationNumber:app.applicationNumber, fullName:app.fullName, status:app.status, adminNotes: app.adminNotes });
   }
   const apps = await db.select().from(boardApplications).where(eq(boardApplications.email,email!));

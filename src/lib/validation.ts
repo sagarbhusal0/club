@@ -19,29 +19,29 @@ const urlRequired = (m: V) => z.string().min(1, m.required).url(m.urlInvalid).re
 
 export function buildBoardApplicationSchema(m: V = en.validation) {
   return z.object({
-    fullName: z.string().min(2, m.nameRequired).max(200),
-    email: z.string().email(m.emailInvalid),
+    fullName: z.string().min(2, m.nameRequired).max(200).max(200),
+    email: z.string().email(m.emailInvalid).max(255),
     phone: z.string().min(7, m.phoneRequired).max(30),
-    grade: z.string().min(1, m.gradeRequired),
-    section: z.string().min(1, m.sectionRequired),
-    studentId: z.string().optional().or(z.literal("")),
-    dateOfBirth: z.string().optional(),
-    profilePhoto: z.string().optional(),
-    firstChoicePositionId: z.string().min(1, m.selectPosition),
-    technicalInterests: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    expertise: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    experience: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    leadershipExperience: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    projects: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    competitions: z.string().refine(englishOnly(m), m.englishOnly).optional(),
+    grade: z.string().min(1, m.gradeRequired).max(50),
+    section: z.string().min(1, m.sectionRequired).max(50),
+    studentId: z.string().max(50).optional().or(z.literal("")),
+    dateOfBirth: z.string().max(20).optional(),
+    profilePhoto: z.string().max(2000).optional(),
+    firstChoicePositionId: z.string().min(1, m.selectPosition).max(100),
+    technicalInterests: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    expertise: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    experience: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    leadershipExperience: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    projects: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    competitions: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
     githubUrl: urlOptional(m),
     portfolioUrl: urlOptional(m),
     otherLinks: urlOptional(m),
-    motivation: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly),
-    positionReason: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly),
-    contribution: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly),
-    proposedActivities: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly),
-    timeCommitment: z.string().min(1, m.required),
+    motivation: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly),
+    positionReason: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly),
+    contribution: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly),
+    proposedActivities: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly),
+    timeCommitment: z.string().min(1, m.required).max(100),
     confirm: z.literal(true, { message: m.confirmAccuracy }),
   });
 }
@@ -49,12 +49,12 @@ export function buildBoardApplicationSchema(m: V = en.validation) {
 export function buildMemberSchema(m: V = en.validation) {
   return z.object({
     fullName: z.string().min(2, m.fullNameRequired).max(200),
-    email: z.string().email(m.emailInvalid),
+    email: z.string().email(m.emailInvalid).max(255),
     phone: z.string().min(7, m.phoneRequired).max(30),
-    grade: z.string().min(1, m.gradeRequired),
-    section: z.string().min(1, m.sectionRequired),
+    grade: z.string().min(1, m.gradeRequired).max(50),
+    section: z.string().min(1, m.sectionRequired).max(50),
     studentId: z.string().min(1, m.studentIdRequired).max(50),
-    role: z.string().min(1, m.roleRequired),
+    role: z.string().min(1, m.roleRequired).max(100),
     githubUrl: urlOptional(m),
     isLeader: z.boolean().optional(),
   });
@@ -64,12 +64,12 @@ export function buildHackathonSchema(m: V = en.validation) {
   return z.object({
     teamName: z.string().min(2, m.teamNameRequired).max(150),
     projectTitle: z.string().min(2, m.projectTitleRequired).max(200),
-    category: z.string().min(1, m.categoryRequired),
-    description: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly),
-    problemStatement: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    solution: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    technologyStack: z.string().refine(englishOnly(m), m.englishOnly).optional(),
-    projectIdeaSummary: z.string().min(20, m.ideaSummaryRequired).refine(englishOnly(m), m.englishOnly),
+    category: z.string().min(1, m.categoryRequired).max(100),
+    description: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly),
+    problemStatement: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    solution: z.string().max(5000).refine(englishOnly(m), m.englishOnly).optional(),
+    technologyStack: z.string().max(3000).refine(englishOnly(m), m.englishOnly).optional(),
+    projectIdeaSummary: z.string().min(20, m.ideaSummaryRequired).max(5000).refine(englishOnly(m), m.englishOnly),
     members: z.array(buildMemberSchema(m)).length(3, m.exactly3Members),
     confirmInfo: z.literal(true, { message: m.confirmInfo }),
     confirmScratch: z.literal(true, { message: m.confirmScratch }),
@@ -89,15 +89,15 @@ export function buildFinalSubmissionSchema(m: V = en.validation) {
     repositoryUrl: urlRequired(m),
     documentationUrl: urlRequired(m),
     finalDemoUrl: urlOptional(m),
-    finalDescription: z.string().min(20, m.minLength20).refine(englishOnly(m), m.englishOnly).optional().or(z.literal("")),
-    aiToolsUsed: z.string().refine(englishOnly(m), m.englishOnly).optional().or(z.literal("")),
+    finalDescription: z.string().min(20, m.minLength20).max(5000).refine(englishOnly(m), m.englishOnly).optional().or(z.literal("")),
+    aiToolsUsed: z.string().max(2000).refine(englishOnly(m), m.englishOnly).optional().or(z.literal("")),
     originalWorkConfirmed: z.literal(true, { message: m.confirmOriginal }),
   });
 }
 
 export const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z.string().min(1).max(128),
 });
 
 // English defaults (used by server actions without a locale and by admin flows).

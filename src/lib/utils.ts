@@ -19,7 +19,11 @@ export function formatDate(d: string|Date) {
 }
 
 export function toCsv(rows: Record<string,unknown>[], headers: string[]) {
-  const esc = (v: unknown) => `"${String(v??"").replace(/"/g,'""')}"`;
+  const esc = (v: unknown) => {
+    let s = String(v ?? "").replace(/"/g, '""');
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return `"${s}"`;
+  };
   return [headers.map(esc).join(","), ...rows.map(r=> headers.map(h=> esc(r[h])).join(","))].join("\n");
 }
 

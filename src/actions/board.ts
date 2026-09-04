@@ -35,7 +35,10 @@ export async function submitBoardApplication(data: unknown, ip: string, locale?:
   const prefix = `ICT-BOARD-${year}-`;
 
   try {
-    const existing = await db.execute(sql`SELECT application_number FROM board_applications WHERE application_number LIKE ${prefix + "%"} ORDER BY application_number DESC LIMIT 1`) as unknown as { rows: { application_number:string }[] };
+    const { withTransaction } = await import("@/lib/db-tx");
+    return await withTransaction(async (tx)=>{
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(9203119)`);
+    const existing = await tx.execute(sql`SELECT application_number FROM board_applications WHERE application_number LIKE ${prefix + "%"} ORDER BY application_number DESC LIMIT 1`) as unknown as { rows: { application_number:string }[] };
     const rows = existing.rows;
     let next = 1;
     if (rows.length) {
@@ -43,7 +46,7 @@ export async function submitBoardApplication(data: unknown, ip: string, locale?:
       next = n+1;
     }
     const num = `${prefix}${String(next).padStart(4,"0")}`;
-    const [result] = await db.insert(boardApplications).values({
+    const [result] = await tx.insert(boardApplications).values({
         applicationNumber: num,
         fullName: d.fullName,
         email: d.email.toLowerCase(),
@@ -94,6 +97,7 @@ export async function submitBoardApplication(data: unknown, ip: string, locale?:
     } catch (e) { console.error("[email] board confirmation failed", e); }
 
     return { success:true, applicationNumber: result.applicationNumber };
+    });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     const cause = (e as { cause?: unknown })?.cause;
