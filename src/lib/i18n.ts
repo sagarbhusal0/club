@@ -17,13 +17,16 @@ export function getDict(locale: Locale): Dict {
 }
 
 // Dot-path lookup with English fallback: t("nav.about"), t("statuses.APPROVED")
+// Returns strings for leaf keys; arrays/objects for structured keys (e.g. checklistItems).
 export function makeT(locale: Locale) {
   const dict = getDict(locale);
   return (key: string): string => {
     const resolve = (d: Dict | undefined): unknown =>
       key.split(".").reduce<unknown>((acc, part) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[part] : undefined), d);
     const v = resolve(dict) ?? resolve(en);
-    return typeof v === "string" ? v : key;
+    if (v === undefined) return key;
+    if (typeof v === "string") return v;
+    return v as unknown as string;
   };
 }
 

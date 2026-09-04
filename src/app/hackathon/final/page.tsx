@@ -22,7 +22,7 @@ export default function FinalPage() {
   async function onSubmit(data: Record<string,unknown>){
     setErr("");
     if(!teamNumber.trim()){ setErr(t("validation.teamIdRequired")); return; }
-    if(!teamEmail.trim()){ setErr(t("validation.emailInvalid") || "Email required"); return; }
+    if(!teamEmail.trim()){ setErr(t("validation.teamEmailRequired")); return; }
     const res = await submitFinal(teamNumber, data, "client", locale, teamEmail);
     if("error" in res && res.error) setErr(res.error);
     else setDone(true);
@@ -40,7 +40,7 @@ export default function FinalPage() {
       <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-medium leading-5 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">{t("final.englishOnly")}</p>
       <Card className="mt-6 space-y-4">
         <div><Label htmlFor="teamNumber">{t("final.teamId")} *</Label><Input id="teamNumber" value={teamNumber} onChange={e=>setTeamNumber(e.target.value)} placeholder="ICT-HACK-2026-0001" /></div>
-        <div><Label htmlFor="teamEmail">Team member email *</Label><Input id="teamEmail" type="email" value={teamEmail} onChange={e=>setTeamEmail(e.target.value)} placeholder="you@school.edu.np" /></div>
+        <div><Label htmlFor="teamEmail">{t("final.teamEmail")} *</Label><Input id="teamEmail" type="email" value={teamEmail} onChange={e=>setTeamEmail(e.target.value)} placeholder="you@school.edu.np" /></div>
         <div><Label htmlFor="repositoryUrl">{t("final.repoUrl")} *</Label><Input id="repositoryUrl" type="url" placeholder="https://github.com/..." {...register("repositoryUrl")} />{e.repositoryUrl && <p className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">{e.repositoryUrl.message}</p>}</div>
         <div><Label htmlFor="documentationUrl">{t("final.docsUrl")} *</Label><Input id="documentationUrl" type="url" placeholder="https://..." {...register("documentationUrl")} />{e.documentationUrl && <p className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">{e.documentationUrl.message}</p>}<p className="mt-1 text-xs text-zinc-400">{t("final.docsNote")}</p></div>
         <div><Label htmlFor="finalDemoUrl">{t("final.demoUrl")} <span className="font-normal text-zinc-400">— optional</span></Label><Input id="finalDemoUrl" type="url" placeholder="https://..." {...register("finalDemoUrl")} /></div>
