@@ -21,12 +21,12 @@ src/
     layout.tsx, globals.css, page.tsx (home, settings-driven)
     about/  login/ (client)  dashboard/ (client unified lookup + NoteModal)
     board-recruitment/ (server) -> apply/ (server + ApplyForm 5-step client) + status/ (client)
-    hackathon/ (server) -> register/ (settings-gated + HackathonForm 5-step client) + status/ (client) + final/ (client final submission, teamNumber+email verified) + success/ (?teamNumber)
+    hackathon/ (server) -> guide/ (server handbook, 15 sections, GuideNav/FAQ/Checklist islands) + register/ (settings-gated + HackathonForm 5-step client) + status/ (client) + final/ (client final submission, teamNumber+email verified) + success/ (?teamNumber)
     admin/ layout (requireAdmin guard) -> page (13 stat cards) + applications/ (list + [id] detail + StatusUpdate) + teams/ (list + [id] detail + IdeaStatusUpdate/FinalUnlockButton/TeamStatusUpdate) + broadcast/ + settings/
     api/ auth/login (loginSchema, safe JSON), auth/logout, board/status (ID+email required), hackathon/status (ID+email required), user/dashboard (email required; q-only rejected), export/applications, export/teams
-  components/ ui.tsx (Button/Input/Textarea/Select/Label/Card/Badge), Navbar.tsx, Footer.tsx, ThemeProvider.tsx, NoteModal.tsx
+  components/ ui.tsx (Button/Input/Textarea/Select/Label/Card/Badge), Navbar.tsx, Footer.tsx, ThemeProvider.tsx, NoteModal.tsx, LocaleProvider.tsx, LanguageSwitcher.tsx, hackathon/GuideNav.tsx (sticky on-this-page + progress), FAQAccordion.tsx, ChecklistCard.tsx (localStorage)
   db/ schema.ts, index.ts (drizzle neon), seed.ts (positions + admin + settings)
-  lib/ constants.ts (statuses, MEMBER_ROLES, DEFAULT_CATEGORIES, JUDGING_CRITERIA, MAX_TEAMS=9, MEMBERS_PER_TEAM=3), validation.ts (max lengths: motivation etc 5000, password 128), auth.ts (email normalized lower), email.ts, email-templates.ts (esc HTML), ratelimit.ts, utils.ts (cn, registrationStatus, toCsv with formula-escape)
+  lib/ constants.ts (statuses, MEMBER_ROLES, DEFAULT_CATEGORIES, JUDGING_CRITERIA, MAX_TEAMS=9, MEMBERS_PER_TEAM=3), validation.ts (max lengths: motivation etc 5000, password 128; notInTeam/teamEmailRequired), auth.ts (email normalized lower), email.ts, email-templates.ts (esc HTML), ratelimit.ts, utils.ts (cn, registrationStatus, toCsv with formula-escape), i18n.ts (makeT supports arrays/objects for structured keys), i18n/en.ts+ne.ts (hackathonGuide.* full EN/NE), i18n-server.ts
   actions/ board.ts (withTransaction advisory 9203119), hackathon.ts (submitHackathonTeam advisory 9203117, submitFinal with optional email membership check + LIMITS.finalSubmission, unlockFinalSubmission), admin.ts (incl. updateIdeaStatus, quota advisory 9203118)
 scripts/  # setup.ts + .mjs helpers: create-admin, migrate, open-registration, verify-login, one-off fix-*/check-* codemods
 drizzle.config.ts, next.config.ts ({allowedDevOrigins, poweredByHeader false, security headers}), postcss.config.mjs, tsconfig.json
@@ -51,7 +51,9 @@ drizzle.config.ts, next.config.ts ({allowedDevOrigins, poweredByHeader false, se
 2. *Idea review* (admin): `updateIdeaStatus` sets `ideaStatus` (PENDING/APPROVED/NEEDS_REVISION/REJECTED) + adminNotes on team detail page; ideaStatus shows in teams list table, status API, and NoteModal subtitle. No email sent on idea updates beyond leader notify (escaped HTML).
 3. *Final submission* (`/hackathon/final`, client): Team ID + **member email** + repositoryUrl + documentationUrl required (finalDemoUrl/finalDescription/aiToolsUsed optional) + originalWorkConfirmed checkbox -> `submitFinal(teamNumber, data, ip, locale, requesterEmail)` (rate limit `LIMITS.finalSubmission` 5/60s, `buildFinalSubmissionSchema` max caps, membership check if email supplied) sets isFinalSubmitted/finalSubmittedAt/originalWorkConfirmed, status=FINAL_SUBMITTED, emails leader (`finalSubmissionEmail`). **Locked once submitted** — admin `FinalUnlockButton` (`unlockFinalSubmission`, clears isFinalSubmitted + timestamp only; status reverts to APPROVED/REGISTERED).
 
-**Hackathon landing:** rules grid, required-documentation checklist (Team/Project/Members/Problem/Target Users/Solution/Features/Tech Stack/How It Works/Screenshots/Challenges/Future Improvements), categories, `JUDGING_CRITERIA` (7 weighted items = 100%), prohibited/disqualification panel, working hours from settings (`hackathon_working_hours`/`hackathon_break_minutes`, default 4h + 30min).
+**Hackathon landing:** rules grid, required-documentation checklist (Team/Project/Members/Problem/Target Users/Solution/Features/Tech Stack/How It Works/Screenshots/Challenges/Future Improvements), categories, `JUDGING_CRITERIA` (7 weighted items = 100%), prohibited/disqualification panel, working hours from settings (`hackathon_working_hours`/`hackathon_break_minutes`, default 4h + 30min). CTA row now links **Guide & Preparation →** (`/hackathon/guide`).
+
+**Hackathon Guide (`/hackathon/guide`, server):** student-friendly preparation handbook — 15 anchored sections (Overview 8 cards, Rules, How It Works 7-step timeline, Project Ideas from settings/`DEFAULT_CATEGORIES`, Prepare Before You Arrive, YouTube titles Beginner/Intermediate (no fake URLs), AI Guide, Team Prep, Team Roles, What to Bring / NOT Bring, Documentation 12 items, Judging `JUDGING_CRITERIA`, Mindset, FAQ accordion, Checklist). Uses `hackathonStatus` gating for Register CTA, `MAX_TEAMS`/`MEMBERS_PER_TEAM` as source of truth, `overflow-x-hidden` + `min-w-0` + `max-w-[100vw]` on mobile to prevent horizontal scroll; hero `break-words`, mobile GuideNav sticky `top-[57px]` horizontal pill rail with `overflow-y-hidden` + momentum scroll. Islands: `GuideNav` (IntersectionObserver + progress bar + `t(hackathonGuide.onThisPage)`), `FAQAccordion`, `ChecklistCard` (frontend-only `localStorage` `hackathon-guide-checklist`, hydrated post-mount to avoid mismatch). `generateMetadata` from `hackathonGuide.metaTitle/metaDesc`. Fully i18n via `hackathonGuide.*` in `en.ts`/`ne.ts` and `makeT` array/object support; final submission `teamEmail` + `validation.notInTeam/teamEmailRequired` also translated.
 
 **Dashboard (`/dashboard`):** unified search `?q` (ID uppercased, alias `applicationId`) + `?email` (lowercased), merges board+team results, clickable cards -> NoteModal. **Email is required** — `q`-only without email returns 400 (anti-enumeration).
 
@@ -71,7 +73,7 @@ drizzle.config.ts, next.config.ts ({allowedDevOrigins, poweredByHeader false, se
 | `/login` | client |
 | `/dashboard` | client — email required, ID+email |
 | `/board-recruitment`, `/board-recruitment/apply`, `/board-recruitment/status` | server, server+client, client ID+email |
-| `/hackathon`, `/hackathon/register` (settings-gated), `/hackathon/status` (ID+email), `/hackathon/final` (teamId+email), `/hackathon/success?teamNumber` | server, server+client, client, client, server |
+| `/hackathon`, `/hackathon/guide` (handbook 15 sections), `/hackathon/register` (settings-gated), `/hackathon/status` (ID+email), `/hackathon/final` (teamId+email), `/hackathon/success?teamNumber` | server (guide is server), server+client, client, client, server |
 | `/admin`, `/admin/applications`, `/admin/applications/[id]` (full detail + StatusUpdate), `/admin/teams`, `/admin/teams/[id]` (full detail + Idea/Final/Status controls), `/admin/broadcast`, `/admin/settings` | server guarded |
 | `POST /api/auth/login`, `POST /api/auth/logout` | loginSchema validated, 5/min |
 | `GET /api/board/status?applicationNumber=&email=` | requires both; 10/min; `eq` parameterized |
@@ -92,10 +94,11 @@ Setup: `npm i` -> `cp .env.example .env` -> `npm run db:push` -> `npm run db:see
 
 ## Recent Changes
 
-- **Idea review + final submission workflow (9578c55):** hackathon_teams gained projectIdeaSummary, ideaStatus (default PENDING), final fields (repositoryUrl/documentationUrl/finalDemoUrl/aiToolsUsed/originalWorkConfirmed/finalSubmittedAt/isFinalSubmitted) + indexes; `hackathonStatus()` no longer hardcoded CLOSED — delegates to `registrationStatus()` (settings-driven); register page re-enabled with 3-member HackathonForm (confirmScratch, projectIdeaSummary); new `/hackathon/final` client page + `submitFinal`/`unlockFinalSubmission` actions; admin team detail page fully built (IdeaStatusUpdate, FinalUnlockButton, TeamStatusUpdate); admin dashboard 13 cards; teams list filters + Idea/Final columns; `finalSubmissionEmail` template; `finalSubmission` rate limit; scripts/*.mjs helpers.
-- **Status search ID or email:** `board/status`, `hackathon/status`, `user/dashboard` APIs accept ID alone OR email alone (email-only returns array if multiple). UIs have `— or leave blank` labels, `hasQuery` gate, disabled button, list header counts, `View admin note →`.
-- **Admin notes + NoteModal:** `admin_notes` text on both tables, APIs return `adminNotes`, `NoteModal.tsx` (fixed z-50, dim bg, scaleIn, Esc+overflow lock), used in dashboard, board/status, hackathon/status — cards are buttons opening modal.
-- **Navbar blur fix:** header solid `bg-white` on mobile, `md:bg-white/80 md:backdrop-blur` from md only, `isolate`, safe-area-inset-top, Esc + pathname auto-close, animated hamburger, no backdrop-blur on overlay.
+- **Hackathon Guide & Preparation handbook (`/hackathon/guide`):** server page 15 anchored sections (Overview/Rules/How-It-Works/Ideas/Prepare/YouTube/AI/TeamPrep/Roles/Bring/Docs/Judging/Mindset/FAQ/Checklist); settings-driven categories + `JUDGING_CRITERIA` + `MAX_TEAMS`/`MEMBERS_PER_TEAM`; mobile-first `overflow-x-hidden`/`min-w-0`/`max-w-[100vw]` + `break-words` hero; sticky GuideNav rail + progress; `FAQAccordion` + `ChecklistCard` (`localStorage`, hydration-safe); i18n `hackathonGuide.*` EN/NE + `makeT` structured-key fix + `final.teamEmail` + `validation.notInTeam/teamEmailRequired`; `Guide & Preparation →` CTA on `/hackathon`.
+- **Idea review + final submission workflow (9578c55):** hackathon_teams gained projectIdeaSummary, ideaStatus (default PENDING), final fields (repositoryUrl/documentationUrl/finalDemoUrl/aiToolsUsed/originalWorkConfirmed/finalSubmittedAt/isFinalSubmitted) + indexes; `hackathonStatus()` delegates to `registrationStatus()` (settings-driven); register page 3-member HackathonForm; new `/hackathon/final` + `submitFinal`/`unlockFinalSubmission`; admin detail fully built; `finalSubmission` rate limit.
+- **Status search hardened:** `board/status`, `hackathon/status`, `user/dashboard` now require **email with ID** (AND/membership check); `q`-only on dashboard 400. UIs updated accordingly.
+- **Admin notes + NoteModal:** `admin_notes` text, APIs return `adminNotes`, `NoteModal.tsx` (z-50, scaleIn, Esc+overflow lock).
+- **Navbar blur fix:** solid `bg-white` on mobile, `md:bg-white/80 md:backdrop-blur` from md, `isolate`, safe-area, Esc auto-close, hamburger.
 
 ## Production Hardening (2026-09-04)
 
@@ -103,11 +106,13 @@ Setup: `npm i` -> `cp .env.example .env` -> `npm run db:push` -> `npm run db:see
 - **Email XSS:** `email-templates.ts` `esc()` for all interpolations (`&<>"`), yellow admin notes `esc().replace(/\n/g,"<br/>")`, `kvTable` escapes.
 - **CSV injection:** `utils.ts:toCsv` prefixes `=+-@\t\r` values with `'`.
 - **Auth:** `validateLogin` lowercases email, `login` route uses `loginSchema` + try/catch JSON, `clearAuthCookie` overwrites with maxAge 0.
-- **IDOR/enumeration:** `/api/board/status` + `/api/hackathon/status` require `email` when `id` supplied (AND email check / membership check); `/api/user/dashboard` rejects `q`-only without email (400). Status APIs otherwise retain 10/min rate limit.
-- **Final submission auth:** `/hackathon/final` now collects `teamEmail`, `submitFinal(..., requesterEmail)` verifies membership; `LIMITS.finalSubmission` used consistently.
+- **IDOR/enumeration:** `/api/board/status` + `/api/hackathon/status` require `email` when `id` supplied (AND/membership check); `/api/user/dashboard` rejects `q`-only without email (400). Status APIs 10/min rate limit retained.
+- **Final submission auth:** `/hackathon/final` now collects `teamEmail` (`t(final.teamEmail)`), `submitFinal(..., requesterEmail)` verifies membership (`validation.notInTeam/teamEmailRequired`); `LIMITS.finalSubmission` used consistently.
 - **Board numbering race:** `submitBoardApplication` now `withTransaction` + `pg_advisory_xact_lock(9203119)` (hackathon uses `9203117`, quota `9203118`).
 - **Validation caps:** `validation.ts` max lengths (motivation etc 5000, techStack 3000, aiTools 2000, phone 30, grade 50, password 128).
-- **Build/tests:** `next build` ✓, `eslint` 0 errors 8 warnings (unused vars + RHF incompatible-library informational), `tsc --noEmit` ✓, `npm audit` 4 moderate (esbuild dev-only via drizzle-kit, no prod impact; `npm audit fix --force` would downgrade drizzle-kit — skipped).
+- **i18n fix:** `makeT` now returns arrays/objects for structured keys (so `t("hackathonGuide.checklistItems")` etc. don't stringify); `ChecklistCard` hydrates `localStorage` post-mount to avoid server/client mismatch; guide metadata + all sections fully EN/NE via `hackathonGuide.*`.
+- **Mobile overflow fix:** guide `overflow-x-hidden` + `min-w-0` on containers/grid, hero `break-words`, mobile rail `max-w-[100vw] overflow-hidden` + `overflow-y-hidden` momentum scroll; tightened cards (`p-4` mobile / `p-7` desktop), 2-col Overview, single-col Checklist.
+- **Build/tests:** `next build` ✓ (26 routes incl. `/hackathon/guide`), `eslint` 0 errors 8 warnings, `tsc --noEmit` ✓, `npm audit` 4 moderate (esbuild dev-only via drizzle-kit, no prod impact).
 
 ## Conventions & Gotchas
 
